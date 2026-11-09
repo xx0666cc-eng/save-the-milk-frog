@@ -1,0 +1,823 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-30T13:57:31.994Z",
+  "title": "Design System: 裂境格斗",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "Cream text",
+        "tonalRamp": [
+          "oklch(15.00% 0.0258 84.59)",
+          "oklch(26.43% 0.0258 84.59)",
+          "oklch(37.86% 0.0258 84.59)",
+          "oklch(49.29% 0.0258 84.59)",
+          "oklch(60.71% 0.0258 84.59)",
+          "oklch(72.14% 0.0258 84.59)",
+          "oklch(83.57% 0.0258 84.59)",
+          "oklch(95.00% 0.0258 84.59)"
+        ]
+      },
+      "dim": {
+        "role": "neutral",
+        "displayName": "Muted text",
+        "tonalRamp": [
+          "oklch(15.00% 0.0113 182.80)",
+          "oklch(26.43% 0.0113 182.80)",
+          "oklch(37.86% 0.0113 182.80)",
+          "oklch(49.29% 0.0113 182.80)",
+          "oklch(60.71% 0.0113 182.80)",
+          "oklch(72.14% 0.0113 182.80)",
+          "oklch(83.57% 0.0113 182.80)",
+          "oklch(95.00% 0.0113 182.80)"
+        ]
+      },
+      "teal": {
+        "role": "primary",
+        "displayName": "Player HUD turquoise",
+        "tonalRamp": [
+          "oklch(15.00% 0.1161 184.87)",
+          "oklch(26.43% 0.1161 184.87)",
+          "oklch(37.86% 0.1161 184.87)",
+          "oklch(49.29% 0.1161 184.87)",
+          "oklch(60.71% 0.1161 184.87)",
+          "oklch(72.14% 0.1161 184.87)",
+          "oklch(83.57% 0.1161 184.87)",
+          "oklch(95.00% 0.1161 184.87)"
+        ]
+      },
+      "red": {
+        "role": "secondary",
+        "displayName": "CPU coral",
+        "tonalRamp": [
+          "oklch(15.00% 0.1330 36.58)",
+          "oklch(26.43% 0.1330 36.58)",
+          "oklch(37.86% 0.1330 36.58)",
+          "oklch(49.29% 0.1330 36.58)",
+          "oklch(60.71% 0.1330 36.58)",
+          "oklch(72.14% 0.1330 36.58)",
+          "oklch(83.57% 0.1330 36.58)",
+          "oklch(95.00% 0.1330 36.58)"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Deep blue-green",
+        "tonalRamp": [
+          "oklch(15.00% 0.0272 224.78)",
+          "oklch(26.43% 0.0272 224.78)",
+          "oklch(37.86% 0.0272 224.78)",
+          "oklch(49.29% 0.0272 224.78)",
+          "oklch(60.71% 0.0272 224.78)",
+          "oklch(72.14% 0.0272 224.78)",
+          "oklch(83.57% 0.0272 224.78)",
+          "oklch(95.00% 0.0272 224.78)"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Dialog blue-green",
+        "tonalRamp": [
+          "oklch(15.00% 0.0316 223.44)",
+          "oklch(26.43% 0.0316 223.44)",
+          "oklch(37.86% 0.0316 223.44)",
+          "oklch(49.29% 0.0316 223.44)",
+          "oklch(60.71% 0.0316 223.44)",
+          "oklch(72.14% 0.0316 223.44)",
+          "oklch(83.57% 0.0316 223.44)",
+          "oklch(95.00% 0.0316 223.44)"
+        ]
+      },
+      "button-ink": {
+        "role": "neutral",
+        "displayName": "Button text",
+        "tonalRamp": [
+          "oklch(15.00% 0.0336 214.85)",
+          "oklch(26.43% 0.0336 214.85)",
+          "oklch(37.86% 0.0336 214.85)",
+          "oklch(49.29% 0.0336 214.85)",
+          "oklch(60.71% 0.0336 214.85)",
+          "oklch(72.14% 0.0336 214.85)",
+          "oklch(83.57% 0.0336 214.85)",
+          "oklch(95.00% 0.0336 214.85)"
+        ]
+      },
+      "teal-hover": {
+        "role": "primary",
+        "displayName": "Bright turquoise",
+        "tonalRamp": [
+          "oklch(15.00% 0.0815 182.41)",
+          "oklch(26.43% 0.0815 182.41)",
+          "oklch(37.86% 0.0815 182.41)",
+          "oklch(49.29% 0.0815 182.41)",
+          "oklch(60.71% 0.0815 182.41)",
+          "oklch(72.14% 0.0815 182.41)",
+          "oklch(83.57% 0.0815 182.41)",
+          "oklch(95.00% 0.0815 182.41)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Translucent divider",
+        "tonalRamp": [
+          "oklch(15.00% 0.0232 120.20 / .24)",
+          "oklch(26.43% 0.0232 120.20 / .24)",
+          "oklch(37.86% 0.0232 120.20 / .24)",
+          "oklch(49.29% 0.0232 120.20 / .24)",
+          "oklch(60.71% 0.0232 120.20 / .24)",
+          "oklch(72.14% 0.0232 120.20 / .24)",
+          "oklch(83.57% 0.0232 120.20 / .24)",
+          "oklch(95.00% 0.0232 120.20 / .24)"
+        ]
+      },
+      "growth-panel": {
+        "role": "neutral",
+        "displayName": "局外蓝绿面板",
+        "scope": "成长 HUD 与局外账户界面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0358 225.79)",
+          "oklch(26.43% 0.0358 225.79)",
+          "oklch(37.86% 0.0358 225.79)",
+          "oklch(49.29% 0.0358 225.79)",
+          "oklch(60.71% 0.0358 225.79)",
+          "oklch(72.14% 0.0358 225.79)",
+          "oklch(83.57% 0.0358 225.79)",
+          "oklch(95.00% 0.0358 225.79)"
+        ]
+      },
+      "growth-ink": {
+        "role": "neutral",
+        "displayName": "局外奶油正文",
+        "scope": "成长 HUD 与局外账户界面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0262 90.10)",
+          "oklch(26.43% 0.0262 90.10)",
+          "oklch(37.86% 0.0262 90.10)",
+          "oklch(49.29% 0.0262 90.10)",
+          "oklch(60.71% 0.0262 90.10)",
+          "oklch(72.14% 0.0262 90.10)",
+          "oklch(83.57% 0.0262 90.10)",
+          "oklch(95.00% 0.0262 90.10)"
+        ]
+      },
+      "growth-muted": {
+        "role": "neutral",
+        "displayName": "局外次级说明",
+        "scope": "成长 HUD 与局外账户界面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0147 169.18)",
+          "oklch(26.43% 0.0147 169.18)",
+          "oklch(37.86% 0.0147 169.18)",
+          "oklch(49.29% 0.0147 169.18)",
+          "oklch(60.71% 0.0147 169.18)",
+          "oklch(72.14% 0.0147 169.18)",
+          "oklch(83.57% 0.0147 169.18)",
+          "oklch(95.00% 0.0147 169.18)"
+        ]
+      },
+      "growth-gold": {
+        "role": "primary",
+        "displayName": "成长奶金刻度",
+        "scope": "成长 HUD 与局外账户界面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0919 85.71)",
+          "oklch(26.43% 0.0919 85.71)",
+          "oklch(37.86% 0.0919 85.71)",
+          "oklch(49.29% 0.0919 85.71)",
+          "oklch(60.71% 0.0919 85.71)",
+          "oklch(72.14% 0.0919 85.71)",
+          "oklch(83.57% 0.0919 85.71)",
+          "oklch(95.00% 0.0919 85.71)"
+        ]
+      },
+      "growth-purchase": {
+        "role": "primary",
+        "displayName": "局外升级按钮",
+        "scope": "成长 HUD 与局外账户界面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0962 86.80)",
+          "oklch(26.43% 0.0962 86.80)",
+          "oklch(37.86% 0.0962 86.80)",
+          "oklch(49.29% 0.0962 86.80)",
+          "oklch(60.71% 0.0962 86.80)",
+          "oklch(72.14% 0.0962 86.80)",
+          "oklch(83.57% 0.0962 86.80)",
+          "oklch(95.00% 0.0962 86.80)"
+        ]
+      },
+      "growth-purchase-ink": {
+        "role": "neutral",
+        "displayName": "升级按钮深色字",
+        "scope": "成长 HUD 与局外账户界面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0266 192.24)",
+          "oklch(26.43% 0.0266 192.24)",
+          "oklch(37.86% 0.0266 192.24)",
+          "oklch(49.29% 0.0266 192.24)",
+          "oklch(60.71% 0.0266 192.24)",
+          "oklch(72.14% 0.0266 192.24)",
+          "oklch(83.57% 0.0266 192.24)",
+          "oklch(95.00% 0.0266 192.24)"
+        ]
+      },
+      "growth-purchase-hover": {
+        "role": "primary",
+        "displayName": "升级按钮悬停",
+        "scope": "成长 HUD 与局外账户界面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0837 86.05)",
+          "oklch(26.43% 0.0837 86.05)",
+          "oklch(37.86% 0.0837 86.05)",
+          "oklch(49.29% 0.0837 86.05)",
+          "oklch(60.71% 0.0837 86.05)",
+          "oklch(72.14% 0.0837 86.05)",
+          "oklch(83.57% 0.0837 86.05)",
+          "oklch(95.00% 0.0837 86.05)"
+        ]
+      },
+      "growth-next": {
+        "role": "secondary",
+        "displayName": "升级后数值",
+        "scope": "成长 HUD 与局外账户界面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0761 160.29)",
+          "oklch(26.43% 0.0761 160.29)",
+          "oklch(37.86% 0.0761 160.29)",
+          "oklch(49.29% 0.0761 160.29)",
+          "oklch(60.71% 0.0761 160.29)",
+          "oklch(72.14% 0.0761 160.29)",
+          "oklch(83.57% 0.0761 160.29)",
+          "oklch(95.00% 0.0761 160.29)"
+        ]
+      },
+      "growth-slot": {
+        "role": "neutral",
+        "displayName": "局外背包格",
+        "scope": "成长 HUD 与局外账户界面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0348 219.44)",
+          "oklch(26.43% 0.0348 219.44)",
+          "oklch(37.86% 0.0348 219.44)",
+          "oklch(49.29% 0.0348 219.44)",
+          "oklch(60.71% 0.0348 219.44)",
+          "oklch(72.14% 0.0348 219.44)",
+          "oklch(83.57% 0.0348 219.44)",
+          "oklch(95.00% 0.0348 219.44)"
+        ]
+      },
+      "growth-focus": {
+        "role": "primary",
+        "displayName": "成长弹窗焦点",
+        "scope": "成长 HUD 与局外账户界面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0969 83.36)",
+          "oklch(26.43% 0.0969 83.36)",
+          "oklch(37.86% 0.0969 83.36)",
+          "oklch(49.29% 0.0969 83.36)",
+          "oklch(60.71% 0.0969 83.36)",
+          "oklch(72.14% 0.0969 83.36)",
+          "oklch(83.57% 0.0969 83.36)",
+          "oklch(95.00% 0.0969 83.36)"
+        ]
+      },
+      "info-ink": {
+        "role": "neutral",
+        "displayName": "角色卡奶金正文",
+        "scope": "角色信息卡",
+        "tonalRamp": [
+          "oklch(15.00% 0.0509 78.72)",
+          "oklch(26.43% 0.0509 78.72)",
+          "oklch(37.86% 0.0509 78.72)",
+          "oklch(49.29% 0.0509 78.72)",
+          "oklch(60.71% 0.0509 78.72)",
+          "oklch(72.14% 0.0509 78.72)",
+          "oklch(83.57% 0.0509 78.72)",
+          "oklch(95.00% 0.0509 78.72)"
+        ]
+      },
+      "info-frame": {
+        "role": "primary",
+        "displayName": "角色卡细金边",
+        "scope": "角色信息卡",
+        "tonalRamp": [
+          "oklch(15.00% 0.0728 71.90)",
+          "oklch(26.43% 0.0728 71.90)",
+          "oklch(37.86% 0.0728 71.90)",
+          "oklch(49.29% 0.0728 71.90)",
+          "oklch(60.71% 0.0728 71.90)",
+          "oklch(72.14% 0.0728 71.90)",
+          "oklch(83.57% 0.0728 71.90)",
+          "oklch(95.00% 0.0728 71.90)"
+        ]
+      },
+      "info-title": {
+        "role": "primary",
+        "displayName": "角色卡标题",
+        "scope": "角色信息卡",
+        "tonalRamp": [
+          "oklch(15.00% 0.0615 79.69)",
+          "oklch(26.43% 0.0615 79.69)",
+          "oklch(37.86% 0.0615 79.69)",
+          "oklch(49.29% 0.0615 79.69)",
+          "oklch(60.71% 0.0615 79.69)",
+          "oklch(72.14% 0.0615 79.69)",
+          "oklch(83.57% 0.0615 79.69)",
+          "oklch(95.00% 0.0615 79.69)"
+        ]
+      },
+      "info-section-title": {
+        "role": "neutral",
+        "displayName": "角色卡分区标题",
+        "scope": "角色信息卡",
+        "tonalRamp": [
+          "oklch(15.00% 0.0604 82.52)",
+          "oklch(26.43% 0.0604 82.52)",
+          "oklch(37.86% 0.0604 82.52)",
+          "oklch(49.29% 0.0604 82.52)",
+          "oklch(60.71% 0.0604 82.52)",
+          "oklch(72.14% 0.0604 82.52)",
+          "oklch(83.57% 0.0604 82.52)",
+          "oklch(95.00% 0.0604 82.52)"
+        ]
+      },
+      "info-section-bg": {
+        "role": "neutral",
+        "displayName": "角色卡透光分区",
+        "scope": "角色信息卡",
+        "tonalRamp": [
+          "oklch(15.00% 0.0057 91.59 / 0.2706)",
+          "oklch(26.43% 0.0057 91.59 / 0.2706)",
+          "oklch(37.86% 0.0057 91.59 / 0.2706)",
+          "oklch(49.29% 0.0057 91.59 / 0.2706)",
+          "oklch(60.71% 0.0057 91.59 / 0.2706)",
+          "oklch(72.14% 0.0057 91.59 / 0.2706)",
+          "oklch(83.57% 0.0057 91.59 / 0.2706)",
+          "oklch(95.00% 0.0057 91.59 / 0.2706)"
+        ]
+      },
+      "info-rank": {
+        "role": "primary",
+        "displayName": "角色卡已强化刻度",
+        "scope": "角色信息卡",
+        "tonalRamp": [
+          "oklch(15.00% 0.1173 86.97)",
+          "oklch(26.43% 0.1173 86.97)",
+          "oklch(37.86% 0.1173 86.97)",
+          "oklch(49.29% 0.1173 86.97)",
+          "oklch(60.71% 0.1173 86.97)",
+          "oklch(72.14% 0.1173 86.97)",
+          "oklch(83.57% 0.1173 86.97)",
+          "oklch(95.00% 0.1173 86.97)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Wordmark",
+        "purpose": "Existing installed KaiTi stack, not a new approved identity."
+      },
+      "label": {
+        "displayName": "Interface labels",
+        "purpose": "HUD, utilities and guide text."
+      },
+      "timer": {
+        "displayName": "Timer",
+        "purpose": "Central numeric combat status."
+      },
+      "growth-title": {
+        "displayName": "局外标题",
+        "purpose": "角色强化与背包标题；29px / 800，800px 以下 25px、600px 以下 22px。"
+      },
+      "growth-value": {
+        "displayName": "局外升级值",
+        "purpose": "升级前后数值；桌面 23px / 700，手机 22px。"
+      },
+      "info-title": {
+        "displayName": "角色卡标题",
+        "purpose": "用户参考的楷体标题；桌面 38px / 700，700px 以下 27px。"
+      },
+      "info-section": {
+        "displayName": "角色卡分区",
+        "purpose": "楷体分区名；桌面 21px / 700，手机 18px。"
+      },
+      "info-attribute": {
+        "displayName": "角色卡属性名",
+        "purpose": "楷体标签；桌面 19px / 700，手机 14px。"
+      },
+      "info-value": {
+        "displayName": "角色卡数值",
+        "purpose": "Georgia 属性读数；桌面 22px，手机 18px。"
+      },
+      "info-level": {
+        "displayName": "角色卡等级",
+        "purpose": "Georgia 等级；桌面 39px / 700，手机 27px。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "dialog",
+        "value": "0 18px 60px #06121c70",
+        "purpose": "Pause and result panels."
+      },
+      {
+        "name": "combo",
+        "value": "0 3px 12px #111c",
+        "purpose": "Combo text over scenery."
+      },
+      {
+        "name": "growth-dialog",
+        "value": "0 24px 90px #04131caa",
+        "purpose": "局外强化 / 背包面板下投影；仅成长弹窗域。"
+      },
+      {
+        "name": "growth-purchase",
+        "value": "inset 0 2px 0 #fff2b870,0 4px 8px #0b23264d",
+        "purpose": "局外升级按钮内高光与柔和接触投影。"
+      },
+      {
+        "name": "info-sheet",
+        "value": "inset 0 0 18px #d09f5530,0 23px 80px #080b0ee0",
+        "purpose": "参考指定角色卡的内照明和下投影；不推广为全局材质。"
+      },
+      {
+        "name": "info-character",
+        "value": "drop-shadow(0 7px 8px #080b0e70)",
+        "purpose": "当前透明站立图的 filter 值；保留素材比例与脚底。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "button",
+        "value": "background .15s, transform .15s",
+        "purpose": "Hover and pressed states."
+      },
+      {
+        "name": "health",
+        "value": "width .09s",
+        "purpose": "Health changes."
+      },
+      {
+        "name": "energy",
+        "value": "width .1s",
+        "purpose": "Energy changes."
+      },
+      {
+        "name": "growth-upgrade",
+        "value": "growthUpgrade .8s ease-out",
+        "purpose": "成功购买后对应升级行从局部背景 / 阴影恢复透明；减少动态效果偏好禁用。"
+      },
+      {
+        "name": "growth-wallet",
+        "value": "growthWallet .4s ease-out",
+        "purpose": "拾取到账时钱包缩放，35% 处为 1.14；减少动态效果偏好禁用。"
+      },
+      {
+        "name": "growth-experience",
+        "value": "growthExperience .7s ease-out",
+        "purpose": "升级时经验 HUD 亮度由 1.7 恢复 1；减少动态效果偏好禁用。"
+      },
+      {
+        "name": "growth-experience-fill",
+        "value": "width .15s ease-out",
+        "purpose": "HUD 经验条宽度变化；减少动态效果偏好禁用。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow-max-width",
+        "value": "800px"
+      },
+      {
+        "name": "short-max-height",
+        "value": "650px"
+      },
+      {
+        "name": "growth-account-mobile-max-width",
+        "value": "600px",
+        "purpose": "局外强化与背包改为纵向布局。"
+      },
+      {
+        "name": "info-tablet-range",
+        "value": "701px–1100px",
+        "purpose": "角色卡上区两列、增益 / 收获下移，下区单列。"
+      },
+      {
+        "name": "info-mobile-max-width",
+        "value": "700px",
+        "purpose": "角色卡内部纵向滚动，标题与关闭入口保持可达。"
+      }
+    ],
+    "scope": "Observed local prototype, not a user-approved final visual identity. Ramps are synthesized preview metadata, not additional application colors. Browser interaction results were reported by the implementation agent; this review used saved captures.",
+    "characterRendering": {
+      "updated": "2026-10-30",
+      "player": "2D image-driven player: ImageGen transparent standing cutout and reference-based nine-pose atlas on a plane in the existing Three.js arena. Yellow body, pale belly and green eyes follow the supplied standing reference. Turquoise remains the HUD accent.",
+      "opponent": "Existing temporary articulated rig.",
+      "scope": "Follows the user's direction to use the supplied image rather than code-built modeling; not an exact 3D reconstruction. Saved idle, guard and gameplay combo captures show correct facing, clean transparency and no visible atlas bleed or clipped limbs."
+    },
+    "progressionUi": {
+      "updatedAt": "2026-11-07",
+      "mode": "Operate",
+      "changeType": "Scoped extension of the existing interface; user-directed character-info material and layout.",
+      "scope": "growth-* tokens document the added HUD/account surfaces; info-* tokens document the reference-led character card. Existing global tokens, snippets and historical narrative are preserved. The top-level generatedAt belongs to the retained legacy snapshot.",
+      "sources": [
+        "../growth.css:3-18",
+        "../growth.css:20-29",
+        "../growth-ui.js:7-49",
+        "../growth-ui.js:61-157",
+        "../../../work/progression-2026-11-07/界面实施方向.md",
+        "../../../work/progression-2026-11-07/ui-review.md"
+      ],
+      "surfaces": {
+        "account": "Blue-green / cream / milk-gold, rounded controls. Character upgrades are independent; wallet is shared. Real before/after values, costs, disabled funds/max states, selected inventory details and empty state.",
+        "characterInfo": "Reference-led deep brown translucent sheet, thin gold frame, centered KaiTi heading; current transparent idle frame at left, live status at center, buffs/harvest at right, permanent upgrades and inventory below. In-run upgrades are read-only; buying remains at the menu."
+      },
+      "materials": [
+        {
+          "name": "info-sheet-background",
+          "value": "linear-gradient(110deg,#342c25f7,#242422f5 53%,#302a25f7)",
+          "purpose": "用户指定角色卡深棕底色；不替换局外蓝绿面板。"
+        },
+        {
+          "name": "info-backdrop",
+          "value": "background:#070b0ec2;backdrop-filter:blur(3px)",
+          "purpose": "角色信息卡背后战斗画面的遮罩。"
+        },
+        {
+          "name": "growth-backdrop",
+          "value": "background:#07151ec7",
+          "purpose": "局外强化 / 背包遮罩。"
+        },
+        {
+          "name": "info-experience-fill",
+          "value": "linear-gradient(#dba5f5,#a66bc7 60%,#d7a5eb)",
+          "purpose": "角色卡经验条。"
+        },
+        {
+          "name": "info-health-fill",
+          "value": "linear-gradient(#f7b9b7,#e88183 65%,#f5a5a4)",
+          "purpose": "角色卡生命条。"
+        },
+        {
+          "name": "info-readonly-upgrade",
+          "value": "background:linear-gradient(#806d44,#54442e);border:1px solid #ac9167;opacity:.68;box-shadow:inset 0 2px 3px #f9d79d3b",
+          "purpose": "局内只读升级价格胶囊；禁用不是购买入口。"
+        }
+      ],
+      "layout": {
+        "account": "1040px maximum, 90vh internally scrolling; upgrade art/list columns, inventory four-column grid/detail. At <=600px, sections stack and character choices scroll horizontally.",
+        "characterInfo": "1500px maximum, width calc(100% - 80px), 92dvh maximum; top three columns, lower two columns. <=700px: width calc(100% - 22px), 94dvh maximum, sticky heading and close, six-column inventory.",
+        "responsiveRadii": "<=600px account dialog:18px; <=700px info sheet:16px and info subpanel:12px."
+      },
+      "evidence": {
+        "reviewDisposition": "ship",
+        "review": "../../../work/progression-2026-11-07/ui-review.md",
+        "captureSizes": [
+          "1440×900",
+          "390×844"
+        ],
+        "captures": [
+          "../../../work/progression-2026-11-07/upgrade-final-desktop.png",
+          "../../../work/progression-2026-11-07/upgrade-final-mobile.png",
+          "../../../work/progression-2026-11-07/backpack-final-desktop.png",
+          "../../../work/progression-2026-11-07/backpack-final-mobile.png",
+          "../../../work/progression-2026-11-07/character-info-final-desktop.png",
+          "../../../work/progression-2026-11-07/character-info-final-mobile.png",
+          "../../../work/progression-2026-11-07/character-info-final-mobile-bottom.png"
+        ],
+        "verificationBoundary": "Documenter inspected source and all seven saved final captures. No browser, combat or save retest; no context/detector rerun. Mobile captures are viewport evidence, not physical-device acceptance."
+      },
+      "previewMetadata": "New tonal ramps are synthesized eight-step dark-to-light preview metadata, not extra application colors. Component snippets are static, self-contained style previews; runtime data and image assets remain in the game."
+    },
+    "resultUi": {
+      "scope": [
+        "#result",
+        ".victory-panel",
+        "#reopenVictory"
+      ],
+      "source": [
+        "result.css",
+        "result-ui.js"
+      ],
+      "colors": {
+        "ink": "#fff5df",
+        "muted": "#d7cde4",
+        "gold": "#ffdc7a",
+        "line": "#caa767",
+        "caramel": "#60391f"
+      },
+      "surface": "radial-gradient(ellipse at 50% 0,#48518a5e,transparent 65%),linear-gradient(145deg,#272545f5,#161c38f2 65%,#292342f5)",
+      "button": "linear-gradient(180deg,#fff5c8 0%,#ffe593 32%,#ffdc6a 66%,#ffca32 100%)",
+      "numbers": {
+        "family": "Georgia,Times New Roman,serif",
+        "weight": 700,
+        "lineHeight": 1.15,
+        "variant": "tabular-nums lining-nums",
+        "base": "clamp(26px,5vw,42px)",
+        "fit": "one shared scale per statistics group"
+      },
+      "displayFamily": "Honglei Xingshu,Microsoft YaHei,serif",
+      "corners": {
+        "panel": 26,
+        "button": 20,
+        "shape": "superellipse(1.6) for buttons"
+      },
+      "layout": {
+        "stats": "repeat(2,minmax(0,1fr))",
+        "actions": "repeat(2,minmax(0,1fr))",
+        "failureMaxWidth": 560,
+        "victoryMaxWidth": 360
+      },
+      "damageFormat": {
+        "thresholdInOriginalUnits": 1000,
+        "divisor": 10000,
+        "suffix": "w",
+        "maxFractionDigits": 1
+      },
+      "behavior": "Presentation only; campaign completion remains non-modal; existing combat, account and button handlers retained."
+    },
+    "characterShowcase": {
+      "scope": [
+        ".character-showcase",
+        "#menu .menu-character"
+      ],
+      "source": [
+        "character-showcase.css",
+        "character-showcase.js",
+        "character-info.js",
+        "menu-character-selection.js"
+      ],
+      "colors": {
+        "ink": "#60391f",
+        "muted": "#7c6044",
+        "line": "#c9a365",
+        "surface": "linear-gradient(135deg,#fffaf0fa,#fbf0dffa)"
+      },
+      "typography": {
+        "display": "Honglei Xingshu,Microsoft YaHei,sans-serif",
+        "numbers": "Georgia,serif",
+        "bodySize": "11-13px"
+      },
+      "geometry": {
+        "panelRadius": 28,
+        "buttonRadius": 20,
+        "cornerShape": "superellipse(1.5)",
+        "hoverScale": 1.065
+      },
+      "motion": {
+        "openMs": 240,
+        "closeMs": 170,
+        "easing": "cubic-bezier(.16,1,.3,1)"
+      },
+      "layout": {
+        "maxWidth": 1040,
+        "maxHeight": 820,
+        "desktop": "original-ratio character on left; independently scrolling information on right",
+        "mobileBreakpoint": 700,
+        "mobile": "one scrolling content column; fixed header and footer"
+      },
+      "data": "Numerical attributes and moves from Combat; upgrade progress from Growth and account. No new unlock rules, invented lore or evolution stages.",
+      "interaction": "Click opens preview; only confirm calls the existing selection transaction. Current/locked states disabled. Native modal blocks click-through; close button, backdrop and Escape preserve active character."
+    },
+    "numericTypography": {
+      "source": [
+        "numeric-typography.css",
+        "numeric-typography.js"
+      ],
+      "features": "lining-nums tabular-nums",
+      "scope": "all DOM UI; world-space Canvas numbers audited separately",
+      "fontPolicy": "Preserve existing component font family, weight, nominal size and responsive hierarchy; serif readouts retain Georgia.",
+      "roles": {
+        "valueLeading": 1.2,
+        "displayLeading": 1.15,
+        "infoLevelNominalSize": 39,
+        "infoValueNominalSize": 22,
+        "mobileInfoLevelSize": 27,
+        "mobileInfoValueSize": 18
+      },
+      "baseline": "Text and numeric groups share first baseline; direct icon/track children align to geometric center.",
+      "inlineRunClass": "ui-number-run",
+      "baselineRowClass": "ui-number-row",
+      "fitting": "One shared adapter; only overflowing groups shrink, nominal font restored on content/viewport change. No positional offsets or transforms applied to numbers.",
+      "componentDimensions": "Existing row extents retained. Before/after upgrade and information card dimensions measured identical at 1440x900.",
+      "dataPolicy": "No changes to numeric values, formatting units, combat, progression or persistence."
+    }
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Start, continue or replay.",
+      "html": "<button class=\"ds-primary\">开始挑战 →</button>",
+      "css": ".ds-primary{font:700 16px \"Microsoft YaHei UI\",\"Microsoft YaHei\",sans-serif;background:var(--teal,#63e4d5);color:#102a30;border:1px solid var(--teal,#63e4d5);padding:15px 26px;min-width:180px;cursor:pointer;transition:background .15s,transform .15s}.ds-primary:hover{background:#a5f6e8;border-color:#a5f6e8}.ds-primary:active{transform:translateY(1px)}.ds-primary:focus-visible{outline:3px solid var(--teal,#63e4d5);outline-offset:4px}"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Practice or restart.",
+      "html": "<button class=\"ds-secondary\">自由练习</button>",
+      "css": ".ds-secondary{font:16px \"Microsoft YaHei UI\",\"Microsoft YaHei\",sans-serif;background:rgba(18,36,42,.55);color:var(--ink,#f4ebd9);border:1px solid var(--line,rgba(230,235,218,.24));padding:15px 22px;cursor:pointer;transition:background .15s,transform .15s}.ds-secondary:hover{background:rgba(240,235,220,.12)}.ds-secondary:active{transform:translateY(1px)}.ds-secondary:focus-visible{outline:3px solid var(--teal,#63e4d5);outline-offset:4px}"
+    },
+    {
+      "name": "Utility action",
+      "kind": "button",
+      "refersTo": "button-utility",
+      "description": "Sound, fullscreen or pause.",
+      "html": "<button class=\"ds-utility\">声音 开</button>",
+      "css": ".ds-utility{font:12px \"Microsoft YaHei UI\",\"Microsoft YaHei\",sans-serif;background:#182c35b8;color:var(--ink,#f4ebd9);border:1px solid var(--line,rgba(230,235,218,.24));padding:7px 11px;cursor:pointer;transition:background .15s,transform .15s}.ds-utility:hover{background:rgba(240,235,220,.12)}.ds-utility:active{transform:translateY(1px)}.ds-utility:focus-visible{outline:3px solid var(--teal,#63e4d5);outline-offset:4px}"
+    },
+    {
+      "name": "Difficulty",
+      "kind": "input",
+      "refersTo": "difficulty-select",
+      "description": "Three available CPU strengths.",
+      "html": "<select class=\"ds-select\" aria-label=\"电脑强度\"><option>入门 · 熟悉出招</option><option selected>标准 · 见招拆招</option><option>进阶 · 更快反击</option></select>",
+      "css": ".ds-select{font:13px \"Microsoft YaHei UI\",\"Microsoft YaHei\",sans-serif;background:#1b3037;color:var(--ink,#f4ebd9);border:1px solid var(--line,rgba(230,235,218,.24));padding:9px 12px}.ds-select:focus-visible{outline:3px solid var(--teal,#63e4d5);outline-offset:4px}"
+    },
+    {
+      "name": "Health meter",
+      "kind": "custom",
+      "refersTo": "health-track",
+      "description": "Illustrative 75% player health; CPU uses coral and right alignment.",
+      "html": "<div class=\"ds-health\" role=\"meter\" aria-label=\"生命\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"75\"><div class=\"ds-health-fill\"></div></div>",
+      "css": ".ds-health{width:280px;height:18px;background:#203039;border:1px solid #eee7cd80;transform:skewX(-12deg);overflow:hidden}.ds-health-fill{height:100%;width:75%;background:var(--teal,#63e4d5);transition:width .09s}"
+    },
+    {
+      "name": "Energy meter",
+      "kind": "custom",
+      "refersTo": "energy-track",
+      "description": "Illustrative 50% energy.",
+      "html": "<div class=\"ds-energy\" role=\"meter\" aria-label=\"气能\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"50\"><div class=\"ds-energy-fill\"></div></div>",
+      "css": ".ds-energy{width:245px;height:9px;background:#263d43;border:1px solid #99c7bf75}.ds-energy-fill{height:100%;width:50%;background:var(--teal,#63e4d5);transition:width .1s}"
+    },
+    {
+      "name": "局外升级操作",
+      "kind": "button",
+      "refersTo": "growth-button-upgrade",
+      "description": "真实升级按钮的文字与壳层预览；游戏内奶币图标保留原图片资源，预览不嵌入外部图片。低余额禁用，满级显示 MAX。",
+      "html": "<button type=\"button\" class=\"ds-growth-buy\" aria-label=\"升级最大生命，消耗20奶币\"><span>20</span><strong>升级</strong></button>",
+      "css": ".ds-growth-buy{display:flex;align-items:center;justify-content:center;gap:6px;min-height:42px;width:160px;padding:5px 9px;border:0;border-radius:11px;background:#e9ca83;color:#283d3c;box-shadow:inset 0 2px 0 #fff2b870,0 4px 8px #0b23264d;font:14px \"Microsoft YaHei UI\",\"Microsoft YaHei\",sans-serif;cursor:pointer;transition:background .15s,transform .15s}.ds-growth-buy strong{font-size:12px;margin-left:auto}.ds-growth-buy:hover:not(:disabled){background:#f9dda0}.ds-growth-buy:active:not(:disabled){transform:translateY(1px)}.ds-growth-buy:focus-visible{outline:3px solid #f5d18b;outline-offset:3px}.ds-growth-buy:disabled{cursor:not-allowed;opacity:.5;transform:none}@media(prefers-reduced-motion:reduce){.ds-growth-buy{transition:none}}"
+    },
+    {
+      "name": "局外成长导航",
+      "kind": "nav",
+      "refersTo": "growth-tab",
+      "description": "角色强化 / 我的背包；方角下划线导航保留，不继承圆润操作按钮形状。",
+      "html": "<nav class=\"ds-growth-tabs\" aria-label=\"局外成长\"><button type=\"button\" aria-pressed=\"true\">角色强化</button><button type=\"button\" aria-pressed=\"false\">我的背包</button></nav>",
+      "css": ".ds-growth-tabs{display:flex;gap:25px;border-bottom:1px solid #577067;background:#1b343e}.ds-growth-tabs button{font:16px \"Microsoft YaHei UI\",\"Microsoft YaHei\",sans-serif;min-height:42px;border:0;border-bottom:3px solid transparent;border-radius:0;padding:10px 2px 12px;color:#bccbc6;background:transparent;cursor:pointer;transition:background .15s,transform .15s}.ds-growth-tabs button[aria-pressed=true]{border-color:#efcf83;color:#ffe4a4;font-weight:700}.ds-growth-tabs button:hover{background:rgba(240,235,220,.12)}.ds-growth-tabs button:active{transform:translateY(1px)}.ds-growth-tabs button:focus-visible{outline:3px solid #f5d18b;outline-offset:3px}@media(prefers-reduced-motion:reduce){.ds-growth-tabs button{transition:none}}"
+    },
+    {
+      "name": "局外背包物品格",
+      "kind": "card",
+      "refersTo": "growth-backpack-slot",
+      "description": "选中条目的格子壳层；文字为界面类型标签而非正式物品，游戏条目内容由真实 inventory 提供。",
+      "html": "<button type=\"button\" class=\"ds-growth-slot\" aria-pressed=\"true\" aria-label=\"物品样式预览\"><span>物品</span><b>1</b></button>",
+      "css": ".ds-growth-slot{position:relative;display:flex;align-items:center;justify-content:center;width:90px;aspect-ratio:1;min-height:65px;padding:8px;border:2px solid transparent;border-radius:13px;background:#243e46;color:#e9d89f;box-shadow:inset 0 2px 6px #0b232858;font:17px \"Microsoft YaHei UI\",\"Microsoft YaHei\",sans-serif;cursor:pointer;transition:background .15s,transform .15s}.ds-growth-slot span{font-weight:700}.ds-growth-slot b{position:absolute;right:9px;bottom:6px;font-size:13px;color:#fff0c7}.ds-growth-slot[aria-pressed=true]{border-color:#efcf83;background:#3e5553}.ds-growth-slot:hover{background:rgba(240,235,220,.12)}.ds-growth-slot:active{transform:translateY(1px)}.ds-growth-slot:focus-visible{outline:3px solid #f5d18b;outline-offset:3px}@media(prefers-reduced-motion:reduce){.ds-growth-slot{transition:none}}"
+    },
+    {
+      "name": "角色卡增益分区",
+      "kind": "custom",
+      "refersTo": "info-subpanel",
+      "description": "参考指定深棕金边角色卡分区；静态预览显示已有移动增益状态，倒计时由游戏暂停逻辑控制。",
+      "html": "<section class=\"ds-info-subpanel\"><h3><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 2h14M5 22h14M7 2v5l5 5-5 5v5M17 2v5l-5 5 5 5v5\"/></svg>当前增益</h3><div class=\"ds-info-buff\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 19c8-2 16-8 17-16-8 0-14 6-14 13m-3 6 12-13m-4 8H6m9-5h-5\"/></svg><div><b>移动速度提升</b><span>移动速度 +50%</span></div><time>00:05</time></div><p>暂无其他增益</p></section>",
+      "css": ".ds-info-subpanel{width:360px;max-width:100%;padding:12px 14px;border:1px solid #9b7c526b;border-radius:16px;background:#25242145;color:#f5dfbd}.ds-info-subpanel h3{display:flex;align-items:center;gap:8px;font:700 21px/1.25 \"STKaiti\",\"KaiTi\",\"楷体\",serif;color:#f4ddb3;margin:0 0 12px}.ds-info-subpanel svg{width:23px;height:23px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;color:#dabb84}.ds-info-buff{display:flex;align-items:center;gap:10px;padding:10px 9px;border:1px solid #c69746;border-radius:10px;background:linear-gradient(90deg,#8060255c,#352e2220);box-shadow:inset 0 0 10px #a8772526;margin-top:8px}.ds-info-buff>svg{width:30px;height:30px;color:#f1ce8b}.ds-info-buff>div{display:flex;flex:1;flex-direction:column;gap:5px;min-width:0}.ds-info-buff b{font:700 17px/1.2 \"STKaiti\",\"KaiTi\",\"楷体\",serif}.ds-info-buff span{font:14px/1.2 \"STKaiti\",\"KaiTi\",\"楷体\",serif;color:#dfcbac}.ds-info-buff time{font:700 21px/1 Georgia,serif;color:#f5d376;white-space:nowrap}.ds-info-subpanel>p{border:1px solid #8a817340;border-radius:10px;text-align:center;color:#b6ac9c;font:15px/1.4 \"STKaiti\",\"KaiTi\",\"楷体\",serif;padding:14px 5px;margin:10px 0 0}"
+    }
+  ],
+  "narrative": {
+    "northStar": "风起之庭",
+    "overview": "This document records the existing local fighting-game prototype: a 2D image-driven player, a temporary articulated CPU, side-view combat and a dusk courtyard. The player uses a transparent standing cutout and reference-based nine-pose atlas on a plane in the Three.js arena, following the user's image-first correction. This is not an exact 3D reconstruction.",
+    "keyCharacteristics": [
+      "Battlefield remains the main surface; health, energy and controls occupy screen edges.",
+      "Turquoise identifies the player HUD; the player image retains the supplied yellow character palette. Coral identifies the CPU.",
+      "Warm low-poly scenery contrasts with dark blue-green controls and cream text."
+    ],
+    "rules": [
+      {
+        "name": "The Two-Surface Rule",
+        "body": "蓝绿奶金用于局外账户界面；深棕金边只用于用户指定的角色信息卡。后续扩展按所在组件选域，不把其中一域扩散为全站替换色板。",
+        "section": "colors"
+      },
+      {
+        "name": "The Read-Then-Buy Rule",
+        "body": "角色卡提供局内查看；永久强化的消费动作只在主界面角色强化执行。两处保持同一份角色数值与账户事实。",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do preserve the player's yellow body, pale belly and green eyes from the supplied reference; retain turquoise player and coral CPU HUD accents.",
+      "Do keep utility, energy and touch controls in separate rows on narrow screens.",
+      "Do describe the player as 2D image-driven and the CPU as a temporary articulated rig.",
+      "Do 保留当前角色透明站立图的比例、脚底与名称，切换角色时跟随真实素材。",
+      "Do 保持本局收获、永久账户余额与永久物品数量的语义区分。",
+      "Do 在手机角色卡内部滚动时保持标题与关闭入口可达，并保留局外购买说明。"
+    ],
+    "donts": [
+      "Don't present the image-driven player as an exact 3D reconstruction or the temporary CPU as a final likeness model.",
+      "Don't let an overlay continue live combat behind instructions or pause controls.",
+      "Don't infer untested device support from these documented breakpoints.",
+      "Don't 将深棕金边、局部光圈或圆润成长控件推广为旧菜单与战斗 UI 的全局替换规则。",
+      "Don't 把参考图烘焙成静态整页，或把合成验收数据、背包条目当作正式游戏内容。"
+    ]
+  }
+}

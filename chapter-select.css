@@ -1,0 +1,41 @@
+/* Inherits the existing character dossier materials and honey-gold controls. */
+.chapter-select{width:min(1120px,calc(100vw - 32px))}
+.chapter-select[open]{height:auto;max-height:calc(100dvh - 32px);grid-template-rows:auto minmax(0,1fr) auto}
+.chapter-header{padding:20px 26px 18px}
+.chapter-header h2{margin:0;color:var(--showcase-brown);font:700 clamp(30px,4vw,40px)/1.25 'Honglei Xingshu','Microsoft YaHei',sans-serif}
+.chapter-header p{margin:7px 0 0;font-size:12px;line-height:1.6;color:var(--showcase-muted)}
+.chapter-close{flex-shrink:0}
+.chapter-scroll{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#b99c68 #f5ead6}
+.chapter-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;padding:22px 26px 24px}
+.chapter-select .chapter-card{display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid #d1b584;border-radius:16px;background:#fff9ed;color:var(--showcase-brown);text-align:left;box-shadow:none;transition:transform .18s ease-out,border-color .18s ease-out,box-shadow .18s ease-out;isolation:isolate}
+.chapter-select .chapter-card:hover:not(:disabled){transform:translateY(-3px);filter:none;border-color:#ac792c;box-shadow:0 8px 18px #60391f1c}
+.chapter-select .chapter-card:active:not(:disabled){transform:translateY(-1px) scale(.99)}
+.chapter-select .chapter-card.is-current{border-color:#b37c22;box-shadow:0 0 0 2px #f4d88d99}
+.chapter-art{position:relative;display:block;flex:none;width:100%;aspect-ratio:2.3;min-width:0;background:#ded4df;border-radius:15px 15px 0 0}
+.chapter-art img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.chapter-state{position:absolute;right:10px;bottom:10px;padding:4px 9px;border:1px solid #ead7a266;border-radius:7px;color:#fff5df;background:#28203ad9;font-size:11px;font-weight:700;line-height:1.5}
+.chapter-info{display:grid;gap:6px;min-width:0;padding:13px 16px 14px}
+.chapter-number{color:var(--showcase-muted);font-size:11px;line-height:1.5;font-variant-numeric:tabular-nums}
+.chapter-name{font:700 27px/1.25 'Honglei Xingshu','Microsoft YaHei',sans-serif;overflow-wrap:anywhere}
+.chapter-detail{min-height:19px;font-size:11px;line-height:1.7;color:var(--showcase-muted);overflow-wrap:anywhere}
+.chapter-action{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:4px;padding-top:9px;border-top:1px solid #d6bb8b66;font-size:12px;font-weight:700;line-height:1.6}
+.chapter-action svg{align-self:center;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.chapter-select .chapter-card:disabled{background:#f0e7d9;color:#8b7460;filter:none;box-shadow:none;cursor:not-allowed}
+.chapter-select .chapter-card.is-locked .chapter-art img{filter:grayscale(.75) saturate(.45);opacity:.65}
+.chapter-select .chapter-card.is-locked .chapter-state{color:#f3ebdd;background:#554c55e6}
+.chapter-footer{gap:18px}
+.chapter-footer p{margin:0;font-size:11px;line-height:1.7;color:var(--showcase-muted)}
+.chapter-footer #chapterSelectStatus:not(:empty){margin-top:5px;color:var(--showcase-brown);font-size:12px;font-weight:700}
+.chapter-select[aria-busy='true'] .chapter-card{cursor:wait}
+@media(max-width:850px){.chapter-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}
+@media(max-width:520px){
+ .chapter-select{width:calc(100vw - 20px);max-height:calc(100dvh - 20px)}
+ .chapter-select[open]{max-height:calc(100dvh - 20px)}
+ .chapter-header{padding:14px 16px}
+ .chapter-grid{grid-template-columns:minmax(0,1fr);padding:16px;gap:14px}
+ .chapter-card .chapter-art{aspect-ratio:2.5}
+ .chapter-footer{align-items:stretch;flex-direction:column;gap:12px}
+ .chapter-footer .showcase-confirm{width:100%;min-height:44px}
+}
+@media(max-height:560px) and (min-width:521px){.chapter-header{padding:10px 20px}.chapter-grid{padding:14px 20px}.chapter-footer{padding:10px 20px 14px}}
+@media(prefers-reduced-motion:reduce){.chapter-select .chapter-card{transition:none}}

@@ -1,0 +1,129 @@
+/* Utility surfaces share the character dossier's warm palette.
+   The in-run .growth-info card, HUD and result screens retain their themes. */
+:is(#help,#menuSettingsPanel,#growthDialog:not(.growth-info)){
+ --utility-ink:#60391f;
+ --utility-muted:#7c6044;
+ --utility-line:#d6bb8b80;
+ --utility-gold:#8a5719;
+ --utility-surface:linear-gradient(135deg,#fffaf0fa,#fbf0dffa);
+ --utility-button:linear-gradient(180deg,#fff5c8 0%,#ffe593 32%,#ffdc6a 66%,#ffca32 100%);
+ --utility-shadow:inset 0 1px 0 #fff,0 22px 70px #2013247a;
+ color:var(--utility-ink);
+}
+:is(#help,#menuSettingsPanel,#growthDialog:not(.growth-info)) ::selection{
+ background:#f2d58f;color:#60391f;
+}
+:is(#help,#menuSettingsPanel,#growthDialog:not(.growth-info)) :is(button,select):focus-visible{
+ outline:3px solid #ae762b;outline-offset:3px;
+}
+:is(#help,#growthDialog:not(.growth-info)) kbd{
+ color:var(--utility-ink);background:#f7e5b9;border-color:#c9a365;
+ border-radius:6px;box-shadow:inset 0 1px 0 #fffcf4,0 1px 2px #6c461a14;
+}
+
+/* Operation guide: retain its reading columns and responsive flow. */
+#help{background:#1c142759;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#help .help-panel{
+ background:var(--utility-surface);color:var(--utility-ink);border-color:#c9a365;
+ border-radius:28px;corner-shape:superellipse(1.5);box-shadow:var(--utility-shadow);
+ scrollbar-color:#b99c68 #f5ead6;
+}
+#help .help-title h2{
+ font-family:'Honglei Xingshu','Microsoft YaHei',sans-serif;
+ color:var(--utility-ink);font-weight:700;
+}
+#help .help-title button{
+ color:var(--utility-ink);border-color:transparent;background:#ebd7ac4d;
+ border-radius:12px;corner-shape:superellipse(1.5);
+}
+#help .help-title button:hover{background:#e5c98f70}
+#help .help-grid h3{color:var(--utility-gold)}
+#help .help-grid :is(p,small),#help .help-tip{color:var(--utility-muted)}
+#help .combo-recipe,#help .help-tip{border-color:var(--utility-line)}
+#help .combo-recipe>b{color:var(--utility-ink)}
+
+/* Existing non-modal menu popover; no new input or settings logic. */
+#menu #menuSettingsPanel{
+ color:var(--utility-ink);background:var(--utility-surface);border-color:#c9a365;
+ border-radius:24px;corner-shape:superellipse(1.5);box-shadow:var(--utility-shadow);
+}
+#menu #menuSettingsPanel h2{color:var(--utility-ink)}
+#menu #menuSettingsPanel :is(button,select){
+ color:var(--utility-ink);border-color:#c9a365;border-radius:12px;
+ corner-shape:superellipse(1.5);background:#f7e9cc;
+ box-shadow:inset 0 1px 0 #fffaf0;
+}
+#menu #menuSettingsPanel select{background:#fff9ed;accent-color:#a46915;color-scheme:light}
+#menu #menuSettingsPanel option{color:#60391f;background:#fff9ed}
+#menu #menuSettingsPanel button:hover{background:#f4dfaa;border-color:#a97a31}
+#menu #menuSettingsPanel #menuSettingsClose{background:#ebd7ac4d;box-shadow:none}
+#menu #menuSettingsPanel #menuSettingsClose:hover{background:#e5c98f70}
+
+/* Permanent upgrades and inventory only: keep the existing dimensions,
+   numeric typography and native dialog behavior. */
+#growthDialog:not(.growth-info){
+ --growth-gold:var(--utility-gold);--growth-muted:var(--utility-muted);
+ color:var(--utility-ink);background:var(--utility-surface);
+ border-radius:28px;corner-shape:superellipse(1.5);
+ box-shadow:inset 0 0 0 1px #c9a365,var(--utility-shadow);
+ scrollbar-color:#b99c68 #f5ead6;
+}
+#growthDialog:not(.growth-info)::backdrop{
+ background:#1c142759;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+#growthDialog:not(.growth-info) :is(.growth-heading h2,.growth-character-art>h3){
+ font-family:'Honglei Xingshu','Microsoft YaHei',sans-serif;
+ color:var(--utility-ink);font-weight:700;
+}
+#growthDialog:not(.growth-info) :is(.milk-wallet,.milk-wallet>span){color:var(--utility-ink)}
+#growthDialog:not(.growth-info) #growthClose{color:var(--utility-ink);background:#ebd7ac4d}
+#growthDialog:not(.growth-info) #growthClose:hover{background:#e5c98f70}
+#growthDialog:not(.growth-info) .growth-tabs{border-color:var(--utility-line)}
+#growthDialog:not(.growth-info) .growth-tabs>button{color:var(--utility-muted)}
+#growthDialog:not(.growth-info) .growth-tabs>button:hover{color:var(--utility-ink);background:#ebd7ac33}
+#growthDialog:not(.growth-info) .growth-tabs>button[aria-pressed=true]{border-color:#b97e22;color:var(--utility-ink)}
+#growthDialog:not(.growth-info) :is(.growth-portrait,.growth-character-choices>button){background:#f0e2c8}
+#growthDialog:not(.growth-info) .growth-hero-portrait{box-shadow:0 10px 28px #6c461a26}
+#growthDialog:not(.growth-info) .growth-character-choices{scrollbar-color:#b99c68 #f5ead6}
+#growthDialog:not(.growth-info) .growth-character-choices>button:hover{background:#f5d994}
+#growthDialog:not(.growth-info) .growth-character-choices>button[aria-pressed=true]{border-color:#a9701e;background:#f5d994}
+#growthDialog:not(.growth-info) :is(.growth-section-copy,.growth-rules,#growthStatus){color:var(--utility-muted)}
+#growthDialog:not(.growth-info) :is(.growth-upgrade-row,#growthStatus){border-color:var(--utility-line)}
+#growthDialog:not(.growth-info) .growth-attribute-title>span{color:var(--utility-gold)}
+#growthDialog:not(.growth-info) .growth-attribute-title small{color:var(--utility-muted)}
+#growthDialog:not(.growth-info) .growth-attribute-values>b:nth-of-type(2){color:#8a5719}
+#growthDialog:not(.growth-info) .growth-attribute-values>span{color:var(--utility-muted)}
+#growthDialog:not(.growth-info) .growth-attribute-values>button{
+ color:var(--utility-ink);background:var(--utility-button);border:0;
+ box-shadow:inset 0 0 0 1px #bf8a18,inset 0 2px 3px #fffbe5,0 3px 0 #a96b0d,0 5px 12px #6c461a24;
+ corner-shape:superellipse(1.6);
+}
+#growthDialog:not(.growth-info) .growth-attribute-values>button:hover:not(:disabled){background:var(--utility-button);filter:brightness(1.04)}
+#growthDialog:not(.growth-info) .growth-attribute-values>button:active:not(:disabled){transform:scale(.98)}
+#growthDialog:not(.growth-info) button:disabled{
+ opacity:1;color:#79694e;background:#e7ddc8;
+ box-shadow:inset 0 0 0 1px #c8b993,inset 0 1px 0 #fff8e4;
+}
+#growthDialog:not(.growth-info) .growth-ranks i{background:#dfd0b3}
+#growthDialog:not(.growth-info) .growth-ranks i.earned{background:#bc8730}
+#growthDialog:not(.growth-info) .growth-upgraded{animation:utility-upgrade .8s ease-out}
+
+/* Inventory recesses stay subtle so the character art remains the focal point. */
+#growthDialog:not(.growth-info) :is(.growth-empty-slot,.growth-item){
+ background:#eee2cb;box-shadow:inset 0 2px 5px #80592612,inset 0 0 0 1px #cfb58966;
+}
+#growthDialog:not(.growth-info) .growth-empty-slot::after{background:#b79d73}
+#growthDialog:not(.growth-info) .growth-item{color:var(--utility-ink)}
+#growthDialog:not(.growth-info) .growth-item:hover{background:#f5e3b7}
+#growthDialog:not(.growth-info) .growth-item[aria-pressed=true]{border-color:#ae762b;background:#f5dfa6}
+#growthDialog:not(.growth-info) .growth-item>b{color:var(--utility-ink)}
+#growthDialog:not(.growth-info) .growth-item-detail svg{stroke:#a17a3c}
+#growthDialog:not(.growth-info) .growth-item-detail h3{
+ color:var(--utility-ink);font-family:'Honglei Xingshu','Microsoft YaHei',sans-serif;
+}
+#growthDialog:not(.growth-info) .growth-item-detail p{color:var(--utility-muted)}
+#growthDialog:not(.growth-info) .growth-item-detail>b{color:var(--utility-gold)}
+
+@keyframes utility-upgrade{from{background:#f1d695;box-shadow:0 5px 15px #a5752420}to{background:transparent;box-shadow:none}}
+@media(max-width:600px){#growthDialog:not(.growth-info),#help .help-panel{border-radius:22px}}
+@media(prefers-reduced-motion:reduce){#growthDialog:not(.growth-info) .growth-upgraded{animation:none}}

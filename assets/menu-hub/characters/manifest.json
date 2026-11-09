@@ -1,0 +1,86 @@
+{
+  "original": {
+    "path": "assets/menu-hub/characters/original.png",
+    "width": 795,
+    "height": 1594,
+    "anchor": 0.533976250005512,
+    "source": "assets/character/sprite-data.js",
+    "box": [
+      53,
+      67,
+      848,
+      1661
+    ],
+    "sha256": "642ff94b40ea4c2c3d3655a8d96b44331a4547d533f5736fc735407cc7b3b75e"
+  },
+  "outfit-8": {
+    "path": "assets/menu-hub/characters/outfit-8.png",
+    "width": 166,
+    "height": 184,
+    "anchor": 0.4397590361445783,
+    "source": "assets/outfits/outfit-8/data-moon-v3.js",
+    "box": [
+      27,
+      15,
+      193,
+      199
+    ],
+    "sha256": "979421f13480aa267b6f6eb84391cf9daf9b645225dc25c36a5dd5ca717f0c35"
+  },
+  "outfit-9": {
+    "path": "assets/menu-hub/characters/outfit-9.png",
+    "width": 160,
+    "height": 190,
+    "anchor": 0.53125,
+    "source": "assets/outfits/outfit-9/data-weapons-v2.js",
+    "box": [
+      21,
+      10,
+      181,
+      200
+    ],
+    "sha256": "fc27ca216d84f52ae3fa1dc2f43d39211cb1e8e8876349e9ba06cdd3d3b4627e"
+  },
+  "outfit-1": {
+    "path": "assets/menu-hub/characters/outfit-1.png",
+    "width": 171,
+    "height": 184,
+    "anchor": 0.47368421052631576,
+    "source": "assets/outfits/outfit-1/data.js",
+    "box": [
+      19,
+      10,
+      190,
+      194
+    ],
+    "sha256": "eb464ed48e894e498c9e9fae0b3e2ef14557127aa48146943725f609475dd4bb"
+  },
+  "outfit-4": {
+    "path": "assets/menu-hub/characters/outfit-4.png",
+    "width": 172,
+    "height": 179,
+    "anchor": 0.6308139534883721,
+    "source": "assets/outfits/outfit-4/data-weapons-v2.js",
+    "box": [
+      14,
+      12,
+      186,
+      191
+    ],
+    "sha256": "9109170fb8b69e67818172725c8f305aec720c670f00c0d698ae1ca25d7e5290"
+  },
+  "president": {
+    "path": "assets/menu-hub/characters/president.png",
+    "width": 277,
+    "height": 375,
+    "anchor": 0.4981949458483754,
+    "source": "assets/outfits/president/data.js",
+    "box": [
+      70,
+      26,
+      347,
+      401
+    ],
+    "sha256": "008f43d6b8ad5362a716085b8773f50ef6ad23145c37095d73014299f5977e24"
+  }
+}

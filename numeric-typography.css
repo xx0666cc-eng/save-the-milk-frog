@@ -1,0 +1,26 @@
+/* Shared numerical typesetting. Existing component fonts, sizes and colors remain authoritative. */
+:root{--ui-number-serif:Georgia,'Times New Roman',serif;--ui-number-value-leading:1.2;--ui-number-display-leading:1.15;--ui-info-level-size:39px;--ui-info-value-size:22px}
+/* Component font shorthands reset this feature; one global invariant avoids per-component overrides. */
+:where(body,body *){font-variant-numeric:lining-nums tabular-nums!important}
+.ui-number-run{white-space:nowrap;font:inherit;line-height:inherit;vertical-align:baseline}
+.ui-number-row{display:flex;align-items:baseline;justify-content:center;gap:inherit;width:100%;min-width:0}
+.ui-number-row>img{align-self:center}
+.showcase-attributes b,.info-attribute-list dd,.info-health>div>span,.info-harvest b,.info-account,.info-experience>b,.info-buff>time{font-family:var(--ui-number-serif)}
+#result .result-stat__value,.victory-panel .result-stat__value{font-family:var(--ui-number-serif);line-height:var(--ui-number-display-leading)}
+.growth-attribute-values>b{line-height:var(--ui-number-value-leading)}
+/* Align text on a shared baseline; pictorial content keeps its geometric center. */
+.milk-wallet,#battleWallet,.experience-caption,.fighter-name,.underbar,.growth-attribute-title,.growth-attribute-values,.info-health>div:first-child,.info-attribute-list>div,.info-harvest>div>span,.info-account,.info-upgrade-row,.info-upgrade-row>button,.info-subpanel>h3,.info-experience,.info-buff,.growth-run-loot{align-items:baseline}
+:is(.milk-wallet,#battleWallet,.underbar,.growth-attribute-values>button,.info-health>div,.info-attribute-list>div,.info-harvest>div>span,.info-account,.info-upgrade-row,.info-upgrade-row>button,.info-subpanel>h3,.info-buff,.growth-run-loot)>:is(img,svg,.guard-track,.info-rank-blocks){align-self:center}
+.showcase-skill-meta{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 .45em}
+/* Numeric values can shrink within their existing track, rather than overflow its box. */
+.milk-wallet,.info-account,.growth-heading-actions{min-width:0;max-width:100%}
+.milk-wallet>b,#battleWallet>b,.info-account>b,.info-harvest b,.info-attribute-list dd,.growth-attribute-values>b,.info-item-slot>b,.growth-item>b{min-width:0;white-space:nowrap}
+.growth-attribute-values>button>:is(span,strong){white-space:nowrap}
+#menu .menu-topbar{max-width:94.4%}
+/* Retain the established row extents; the EXP track uses the existing space below its text. */
+.info-experience{block-size:calc(var(--ui-info-level-size) * 1.2)}
+.info-experience>div>span{white-space:nowrap;min-width:0}
+.info-attribute-list>div{block-size:calc(var(--ui-info-value-size) * 1.2 + 17px)}
+.info-health>div:first-child{block-size:26px}
+.info-subpanel>h3{block-size:1.25em}
+@media(max-width:700px){.info-experience{--ui-info-level-size:27px}.info-attribute-list{--ui-info-value-size:18px}.info-health>div:first-child{block-size:18px}}

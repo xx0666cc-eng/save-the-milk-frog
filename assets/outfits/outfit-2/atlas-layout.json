@@ -1,0 +1,452 @@
+{
+  "id": 2,
+  "size": [
+    1586,
+    992
+  ],
+  "rowEdges": [
+    0,
+    204,
+    397,
+    595,
+    794,
+    992
+  ],
+  "frames": 40,
+  "touchesImageEdge": [],
+  "referenceHeight": 172.5,
+  "displayHeight": 3.1,
+  "metadata": {
+    "idle": {
+      "width": 1586,
+      "height": 992,
+      "displayHeight": 3.1,
+      "frames": [
+        {
+          "box": [
+            59,
+            10,
+            164,
+            204
+          ],
+          "anchor": 112.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1040,
+            802,
+            1141,
+            983
+          ],
+          "anchor": 1090.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1236,
+            802,
+            1336,
+            983
+          ],
+          "anchor": 1285.5,
+          "referenceHeight": 172.5
+        }
+      ]
+    },
+    "walk": {
+      "width": 1586,
+      "height": 992,
+      "displayHeight": 3.1,
+      "frames": [
+        {
+          "box": [
+            49,
+            218,
+            164,
+            396
+          ],
+          "anchor": 110.75,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            256,
+            223,
+            355,
+            395
+          ],
+          "anchor": 305.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            452,
+            222,
+            546,
+            394
+          ],
+          "anchor": 499.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            648,
+            215,
+            740,
+            394
+          ],
+          "anchor": 695.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            832,
+            223,
+            950,
+            395
+          ],
+          "anchor": 892.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1042,
+            223,
+            1147,
+            394
+          ],
+          "anchor": 1090.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1236,
+            221,
+            1332,
+            394
+          ],
+          "anchor": 1283.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1435,
+            218,
+            1538,
+            396
+          ],
+          "anchor": 1484.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            58,
+            411,
+            158,
+            590
+          ],
+          "anchor": 107.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            254,
+            411,
+            353,
+            592
+          ],
+          "anchor": 303.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            449,
+            411,
+            549,
+            586
+          ],
+          "anchor": 498.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            646,
+            410,
+            746,
+            592
+          ],
+          "anchor": 695.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            842,
+            411,
+            943,
+            592
+          ],
+          "anchor": 892.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1039,
+            411,
+            1139,
+            592
+          ],
+          "anchor": 1088.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1235,
+            411,
+            1336,
+            589
+          ],
+          "anchor": 1285.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1431,
+            411,
+            1531,
+            590
+          ],
+          "anchor": 1480.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            57,
+            609,
+            156,
+            788
+          ],
+          "anchor": 106.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            253,
+            609,
+            351,
+            786
+          ],
+          "anchor": 301.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            450,
+            609,
+            547,
+            786
+          ],
+          "anchor": 498.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            646,
+            606,
+            744,
+            785
+          ],
+          "anchor": 695.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            843,
+            609,
+            942,
+            785
+          ],
+          "anchor": 892.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1040,
+            609,
+            1139,
+            784
+          ],
+          "anchor": 1089.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1239,
+            609,
+            1337,
+            783
+          ],
+          "anchor": 1287.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1435,
+            606,
+            1534,
+            785
+          ],
+          "anchor": 1483.5,
+          "referenceHeight": 172.5
+        }
+      ]
+    },
+    "actions": {
+      "width": 1586,
+      "height": 992,
+      "displayHeight": 3.1,
+      "frames": [
+        {
+          "box": [
+            59,
+            10,
+            164,
+            204
+          ],
+          "anchor": 112.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1396,
+            820,
+            1564,
+            970
+          ],
+          "anchor": 1467.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1233,
+            8,
+            1345,
+            179
+          ],
+          "anchor": 1289.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            244,
+            18,
+            389,
+            201
+          ],
+          "anchor": 312.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            420,
+            19,
+            582,
+            200
+          ],
+          "anchor": 526.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            623,
+            15,
+            770,
+            200
+          ],
+          "anchor": 694.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            839,
+            16,
+            943,
+            204
+          ],
+          "anchor": 897.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1021,
+            28,
+            1160,
+            201
+          ],
+          "anchor": 1092.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            625,
+            805,
+            756,
+            984
+          ],
+          "anchor": 694.5,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            30,
+            801,
+            169,
+            983
+          ],
+          "anchor": 113.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            221,
+            808,
+            380,
+            982
+          ],
+          "anchor": 322.75,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            413,
+            805,
+            582,
+            984
+          ],
+          "anchor": 499.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            801,
+            882,
+            985,
+            974
+          ],
+          "anchor": 892.0,
+          "referenceHeight": 172.5
+        },
+        {
+          "box": [
+            1423,
+            50,
+            1546,
+            201
+          ],
+          "anchor": 1486.5,
+          "referenceHeight": 172.5
+        }
+      ]
+    }
+  }
+}

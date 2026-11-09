@@ -93,6 +93,7 @@ const WEAPON_MOVES={
  }
 };
 function moveFor(f,name=f.attack){return WEAPON_MOVES[f.weapon]?.[name]||MOVES[name];}
+function attackLinkTime(f,name=f.attack){const m=moveFor(f,name);return m.hit+(m.projectile&&name!=='super'?.10:.07);}
 function meleeBounds(f,enemy,reach,lane){
  return {maxX:reach*bodyScale(f)+(enemy.isBoss?.42*bodyScale(enemy):0),
   depth:lane*bodyScale(f)+(enemy.isBoss?MELEE_DEPTH.bossBonus*bodyScale(enemy):0)};
@@ -352,7 +353,7 @@ class Game{
   }
   if(f.stun>0||f.hp<=0||f.state==='dash')return false;
   if(f.state==='attack'){
-   const move=moveFor(f);const ranged=move.projectile&&f.attack!=='super',ready=ranged?f.spawned:f.hit;if(!ready||f.t<move.hit+(ranged?.10:.07))return false;
+   const move=moveFor(f);const ranged=move.projectile&&f.attack!=='super',ready=ranged?f.spawned:f.hit;if(!ready||f.t<attackLinkTime(f))return false;
    if(action==='light'&&f.attack==='jab')return this.launch(f,'cross');
    if(action==='light'&&f.attack==='cross')return this.launch(f,'finisher');
    if(action==='heavy'&&['jab','cross','finisher'].includes(f.attack))return this.launch(f,'heavy');
@@ -499,11 +500,13 @@ class Game{
    if(enemy.finaleVulnerable>0)enemy.finaleVulnerable=Math.max(0,enemy.finaleVulnerable-dt);
    if(enemy.allyBoost>0)enemy.allyBoost=Math.max(0,enemy.allyBoost-dt);
    enemy.combo=0;enemy.walkVX=enemy.walkVZ=0;
-   const previousImpact=enemy.bossCast?.nextImpact;
+   const previousImpact=enemy.bossCast?.kind==='finale'?enemy.bossCast.nextImpact:undefined;
    const previousBlast=enemy.bossCast?.kind==='bombard'?enemy.bossCast.next:undefined;
+   const previousBell=enemy.bellImpactSerial||0;
    const attack=monsters.steer(enemy,player,dt,bounds,this.monsters,spawn);
    if(enemy.bossCast?.nextImpact>previousImpact)this.emit('morrisImpact',{final:enemy.bossCast.nextImpact===4});
    if(enemy.bossCast?.kind==='bombard'&&enemy.bossCast.next>previousBlast)this.emit('capitalBlast');
+   if((enemy.bellImpactSerial||0)>previousBell)this.emit('bellImpact',{id:enemy.id,kind:enemy.bellImpactKind});
    if(attack){
     this.emit('attack',{id:enemy.id,weapon:enemy.weapon});
     const scaled={...attack,damage:Math.round(attack.damage*(enemy.damageScale??1))};
@@ -692,5 +695,5 @@ class Game{
   if(this.mode==='training'&&duelist.hp<30&&duelist.stun<=0){const healed=growth.round(duelist.maxHP-duelist.hp);duelist.hp=duelist.maxHP;this.emit('recover',{id:duelist.id,healed,x:duelist.x,y:duelist.y,z:duelist.z});}
  }
 }
-const api={Game,ARENA,MOVES,WEAPON_MOVES,PLAYER_STATS,ENERGY_RULES,GUARD_RULES,moveFor};if(typeof module!=='undefined')module.exports=api;else root.Combat=api;
+const api={Game,ARENA,MOVES,WEAPON_MOVES,PLAYER_STATS,ENERGY_RULES,GUARD_RULES,moveFor,attackLinkTime};if(typeof module!=='undefined')module.exports=api;else root.Combat=api;
 })(typeof window!=='undefined'?window:globalThis);

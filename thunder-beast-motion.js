@@ -55,7 +55,7 @@ function sample(unit,phase){
 const vertexShader=`varying vec2 point;
 void main(){point=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 const fragmentShader=`uniform sampler2D mapA,mapB;uniform vec4 cropA,cropB,boxA,boxB;
-uniform vec2 flip;uniform float blend,opacity;uniform vec3 tint;varying vec2 point;
+uniform vec2 flip;uniform float blend,opacity,sceneTone;uniform vec3 tint;varying vec2 point;
 vec4 frame(sampler2D tex,vec4 crop,vec4 box,float direction){
  vec2 q=(vec2(point.x*direction,point.y)-box.xy)/box.zw;
  if(q.x<0.||q.x>1.||q.y<0.||q.y>1.)return vec4(0.);
@@ -64,7 +64,8 @@ vec4 frame(sampler2D tex,vec4 crop,vec4 box,float direction){
  c.a*=smoothstep(.08,.45,c.a);return vec4(c.rgb*c.a,c.a);
 }
 void main(){vec4 c=mix(frame(mapA,cropA,boxA,flip.x),frame(mapB,cropB,boxB,flip.y),blend);
- if(c.a<.055)discard;gl_FragColor=vec4(c.rgb/max(c.a,.001)*tint,c.a*opacity);
+ if(c.a<.055)discard;vec3 rgb=c.rgb/max(c.a,.001)*tint;rgb=mix(rgb,vec3(dot(rgb,vec3(.2126,.7152,.0722))),sceneTone);
+ gl_FragColor=vec4(rgb,c.a*opacity);
  #include <colorspace_fragment>
 }`;
 let dataPromise=null;
@@ -95,7 +96,7 @@ class View{
  }
  material(){
   const T=THREE;
-  return new T.ShaderMaterial({uniforms:{mapA:{value:null},mapB:{value:null},cropA:{value:new T.Vector4()},cropB:{value:new T.Vector4()},boxA:{value:new T.Vector4()},boxB:{value:new T.Vector4()},flip:{value:new T.Vector2()},blend:{value:0},opacity:{value:1},tint:{value:new T.Color(1,1,1)}},vertexShader,fragmentShader,transparent:true,depthWrite:false,depthTest:false,side:T.DoubleSide,toneMapped:false});
+  return new T.ShaderMaterial({uniforms:{mapA:{value:null},mapB:{value:null},cropA:{value:new T.Vector4()},cropB:{value:new T.Vector4()},boxA:{value:new T.Vector4()},boxB:{value:new T.Vector4()},flip:{value:new T.Vector2()},blend:{value:0},opacity:{value:1},sceneTone:{value:0},tint:{value:new T.Color(1,1,1)}},vertexShader,fragmentShader,transparent:true,depthWrite:false,depthTest:false,side:T.DoubleSide,toneMapped:false});
  }
  frameInfo(p,face){
   const a=this.data[p.asset],f=a.frames[p.index],units=(this.adapter?.height??ThunderBeast.profile.height)/a.referenceHeight;

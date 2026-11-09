@@ -6,7 +6,7 @@ const MAGE_STAFF_CRYSTAL=[45,70];
 function loadTexture(data){const image=new Image(),texture=new T.Texture(image);texture.colorSpace=T.SRGBColorSpace;texture.minFilter=T.LinearFilter;texture.magFilter=T.LinearFilter;texture.generateMipmaps=false;image.onload=()=>texture.needsUpdate=true;image.src=data.uri;return texture;}
 const vertexShader=`varying vec2 localPoint;
 void main(){localPoint=vec2((uv.x-.5)*7.,uv.y*4.5);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-const fragmentShader=`uniform sampler2D mapA,mapB;uniform vec4 cropA,cropB,shapeA,shapeB;uniform float blend;
+const fragmentShader=`uniform sampler2D mapA,mapB;uniform vec4 cropA,cropB,shapeA,shapeB;uniform float blend,sceneTone;
 varying vec2 localPoint;
 vec4 sampleFrame(sampler2D tex,vec4 crop,vec4 shape){
  vec2 p=vec2(localPoint.x*shape.w,localPoint.y);vec2 q=(p-vec2(shape.x,0.))/shape.yz;
@@ -14,14 +14,15 @@ vec4 sampleFrame(sampler2D tex,vec4 crop,vec4 shape){
  vec4 c=texture2D(tex,crop.xy+q*crop.zw);return vec4(c.rgb*c.a,c.a);
 }
 void main(){vec4 c=mix(sampleFrame(mapA,cropA,shapeA),sampleFrame(mapB,cropB,shapeB),blend);
- if(c.a<.08)discard;gl_FragColor=vec4(c.rgb/max(c.a,.001),c.a);
+ if(c.a<.08)discard;vec3 rgb=c.rgb/max(c.a,.001);rgb=mix(rgb,vec3(dot(rgb,vec3(.2126,.7152,.0722))),sceneTone);
+ gl_FragColor=vec4(rgb,c.a);
  #include <colorspace_fragment>
 }`;
 class ReferenceFighterView{
  constructor(scene,id=0){
   this.id=id;this.root=new T.Group();this.root.name='ReferenceImageFighter';scene.add(this.root);this.body=new T.Group();this.root.add(this.body);this.model=this.body;
   this.assets=CHARACTER_ASSETS;this.textures={};for(const name of Object.keys(this.assets))this.textures[name]=loadTexture(this.assets[name]);
-  this.uniforms={mapA:{value:this.textures.idle},mapB:{value:this.textures.idle},cropA:{value:new T.Vector4()},cropB:{value:new T.Vector4()},shapeA:{value:new T.Vector4()},shapeB:{value:new T.Vector4()},blend:{value:0}};
+  this.uniforms={mapA:{value:this.textures.idle},mapB:{value:this.textures.idle},cropA:{value:new T.Vector4()},cropB:{value:new T.Vector4()},shapeA:{value:new T.Vector4()},shapeB:{value:new T.Vector4()},blend:{value:0},sceneTone:{value:0}};
   this.material=new T.ShaderMaterial({uniforms:this.uniforms,vertexShader,fragmentShader,transparent:true,side:T.DoubleSide,depthWrite:false,depthTest:false,toneMapped:false});
   this.sprite=new T.Mesh(new T.PlaneGeometry(7,4.5),this.material);this.sprite.name='ReferenceCutoutSprite';this.sprite.position.set(0,2.25,.08);this.body.rotation.x=-Math.atan2(9.4,19);this.body.add(this.sprite);
   this.shadow=GroundIndicators.create(scene,'player');

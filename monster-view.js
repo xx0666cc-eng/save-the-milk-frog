@@ -118,7 +118,7 @@ class MonsterViews{
   sprite.position.set((.5-frame.anchorX)*signedWidth+lunge,(frame.footY-1)*height+bounce+lift,.03);
   if(view.warning)updateBossWarning(view.warning,monster,move,bounds);
  }
- render(monsters,camera,time,bounds,targetId=null){
+ render(monsters,camera,time,bounds,targetId=null,battlePhase='fight'){
   const visible=new Set();
   for(const monster of monsters){
    const dead=monster.hp<=0;
@@ -138,7 +138,7 @@ class MonsterViews{
    root.position.set(monster.x,monster.y,monster.z);
    root.scale.setScalar(scale);
    billboard.quaternion.copy(camera.quaternion);
-   if(view.motion)view.motion.update(monster,time,opacity);
+   if(view.motion)view.motion.update(monster.monsterType===BellMaster.type&&!['fight','paused'].includes(battlePhase)&&!dead?{...monster,state:'idle'}:monster,time,opacity);
    else if(profile.frames)this.poseFramed(view,monster,phase,bounce,breathe,opacity,bounds);
    else{
     const windup=attacking?Math.min(1,monster.t/profile.windup):0;
@@ -169,7 +169,7 @@ class MonsterViews{
   this.morrisView.render(monsters,camera);
   this.thunderBeastView.render(monsters,camera,this.views,time);
   this.sakuraView.render(monsters,camera,time,bounds);
-  this.bellView.render(monsters,camera,time,bounds);
+  this.bellView.render(monsters,camera,time,bounds,battlePhase);
  }
 }
 window.MonsterViews=MonsterViews;

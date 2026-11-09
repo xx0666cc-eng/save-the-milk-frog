@@ -14,9 +14,14 @@ class ArenaView{
  }
  prepareStage(skinId){return this.backdrop.prepare(skinId);}
  applyStage(stage){
+  this.monsterViews.bellView.ritual.clearPresentation();this.setBellSceneTone(0);
   this.backdrop.apply(stage);this.legacyArena.visible=!stage;this.scene.background=stage?null:this.defaultBackground;this.scene.fog=stage?null:this.defaultFog;
   this.hemi.color.setHex(stage?.sky||0xfce9d0);this.sun.color.setHex(stage?.sun||0xffd2a0);this.hemi.intensity=stage?2.2:2.7;this.sun.intensity=stage?2.5:3.2;
   this.sun.shadow.camera.left=-20;this.sun.shadow.camera.right=20;this.sun.shadow.camera.updateProjectionMatrix();
+ }
+ setBellSceneTone(value){
+  for(const f of this.fighters??[])if(f.uniforms?.sceneTone)f.uniforms.sceneTone.value=value;
+  for(const v of this.monsterViews.views.values())if(v.sprite.material.uniforms?.sceneTone)v.sprite.material.uniforms.sceneTone.value=value;
  }
  updateCamera(game,dt,fs){
   const battling=game.fighters.length>0,aspect=innerWidth/innerHeight;
@@ -106,7 +111,7 @@ class ArenaView{
   this.fighters[1].root.visible=this.fighters[1].shadow.visible=!!fs[1];
   const bounds=game.encounter?.bounds(game)||{left:-Combat.ARENA.halfWidth,right:Combat.ARENA.halfWidth};
   const targetId=fs[0].autoAttack?.targetId;
-  this.monsterViews.render(game.monsters,this.camera,game.time,bounds,targetId);
+  this.monsterViews.render(game.monsters,this.camera,game.time,bounds,targetId,game.phase);
   fs.forEach((f,i)=>this.fighters[i].update({...f,autoTargeted:f.id===targetId,hitStop:game.freeze>0,celebrate:game.phase==='result'&&game.winner===i},game.time||clock));
   for(let i=this.fx.length-1;i>=0;i--){const f=this.fx[i];f.life-=dt;if(f.life<=0){this.scene.remove(f.o);f.o.geometry.dispose();if(f.ring||f.beam)f.o.material.dispose();this.fx.splice(i,1);continue;}if(f.v){f.o.position.addScaledVector(f.v,dt);f.v.y-=18*dt;f.o.rotation.z+=dt*8;}if(f.ring)f.o.scale.setScalar(1+(1-f.life/f.max)*4);if(f.ring||f.beam)f.o.material.opacity=f.life/f.max;}
   const genericProjectiles=game.projectiles.filter(p=>!CapitalVfx.owns(p)&&!SakuraRoninView.owns(p)&&!BellMasterView.owns(p));
@@ -137,6 +142,7 @@ class ArenaView{
   this.growthView.render(game,this.camera,dt);
   const leafWidth=Combat.ARENA.halfWidth+3;
   this.leaves.forEach((o,i)=>{o.position.set(((clock*(.4+i%3*.2)+i*2.73)%(2*leafWidth))-leafWidth, .8+((i*.61-clock*.15)%6+6)%6,-3-i%7);o.rotation.set(clock+i,clock*.7+i,clock*.4);});
+  const ritual=this.monsterViews.bellView.ritual;this.setBellSceneTone(ritual.tone*.96);ritual.applyPresentation(this.renderer.domElement,this.backdrop.element);
   this.renderer.render(this.scene,this.camera);
   this.stageDiagnostics={id:this.backdrop.active?.id||'courtyard',name:this.backdrop.name,source:this.backdrop.active?.src||null,length:Combat.ARENA.halfWidth*2,cameraX:this.camX,locked:!!game.encounter?.active,halfWidth:this.camera.right,halfHeight:this.camera.top,floorY:this.floorY,pan:this.backdrop.pan,feet:fs.map(f=>{const p=new T.Vector3(f.x,0,f.z||0).project(this.camera);return {x:(p.x+1)/2,y:(1-p.y)/2};})};
  }

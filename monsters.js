@@ -7,6 +7,7 @@ const thunderBeast=typeof module!=='undefined'?require('./thunder-beast.js'):roo
 const capital=typeof module!=='undefined'?require('./capital-enemies.js'):root.CapitalEnemies;
 const sakura=typeof module!=='undefined'?require('./sakura-ronin.js'):root.SakuraRonin;
 const bell=typeof module!=='undefined'?require('./bell-master.js'):root.BellMaster;
+const silenced=typeof module!=='undefined'?require('./silenced-enemies.js'):root.SilencedEnemies;
 const types={
  dozer:{name:'瞌睡毛团',image:'assets/monsters/dozer.png',hp:26,damage:6,speed:2.5,reach:1.48,height:2.65,windup:.52,cooldown:1.35},
  bucket:{name:'提桶小蛙',image:'assets/monsters/bucket.png',hp:30,damage:7,speed:2.95,reach:1.48,height:2.65,windup:.46,cooldown:1.52},
@@ -35,7 +36,8 @@ const types={
  [capital.bossType]:capital.boss,
  [capital.eliteType]:capital.elite,
  [sakura.type]:sakura.profile,
- [bell.type]:bell.profile
+ [bell.type]:bell.profile,
+ ...silenced.types
 };
 const trial=[{type:'dozer',x:1.1,z:-.85},{type:'bucket',x:2.85,z:.2},{type:'puff',x:4.45,z:1.45}];
 const fadeTime=.65;
@@ -94,6 +96,7 @@ function steerBoss(boss,player,profile,dt,bounds){
 
 function steer(monster,player,dt,bounds,monsters,spawn){
  const profile=types[monster.monsterType];
+ if(silenced.owns(monster))return silenced.steer(monster,player,dt,bounds,monsters);
  if(monster.monsterType===bell.type)return bell.steer(monster,player,dt,bounds);
  if(monster.monsterType===sakura.type)return sakura.steer(monster,player,dt,bounds);
  if(monster.monsterType===morris.bossType)return morris.steer(monster,player,dt,bounds,monsters,spawn);

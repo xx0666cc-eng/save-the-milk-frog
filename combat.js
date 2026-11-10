@@ -119,7 +119,8 @@ function moveBody(f,dt,move,depth){
  if(f.pullVZ)f.pullVZ*=Math.exp(-dt*12);
  f.vx*=Math.exp(-dt*12);
  f.y+=f.vy*dt;f.vy-=24*dt;
- if(f.y<=0){f.y=0;f.vy=0;if(f.stun===0)f.airHits=0;}
+ const floor=monsters.types[f.monsterType]?.hoverHeight??0;
+ if(f.y<=floor){f.y=floor;f.vy=0;if(f.stun===0)f.airHits=0;}
 }
 function separate(a,b,width=1.1,depth=.7){
  const scale=(bodyScale(a)+bodyScale(b))/2;
@@ -174,7 +175,7 @@ class Game{
   const profile=monsters.types[type];
   const growth=this.mode==='campaign'&&!profile.boss?encounters.levels[this.level].enemyScale:null;
   const monster=new Fighter(this.nextMonsterId++,clamp(x,-ARENA.halfWidth,ARENA.halfWidth),Math.round(profile.hp*(growth?.hp??1)));
-  Object.assign(monster,{monsterType:type,isBoss:!!profile.boss,z:clamp(z,-ARENA.halfDepth,ARENA.halfDepth),alerted:false,struck:false,attackCooldown:0});
+  Object.assign(monster,{monsterType:type,isBoss:!!profile.boss,y:profile.hoverHeight??0,z:clamp(z,-ARENA.halfDepth,ARENA.halfDepth),alerted:false,struck:false,attackCooldown:0});
   monster.damageScale=growth?.damage??1;
   if(profile.guardMax)Object.assign(monster,{guard:profile.guardMax,guardMax:profile.guardMax,guardIdle:0,guardBreakTime:0,guardCasts:[]});
   this.monsters.push(monster);return monster;
@@ -285,6 +286,11 @@ class Game{
   const scale=bodyScale(f),origin=shotOffsets(f,m),offsetX=origin.x,offsetY=origin.y;
   const shot={kind:arrow?'arrow':m.kind||'wave',variant:name??f.bossMove,weapon:f.weapon,x:f.x+f.face*offsetX,y:f.y+offsetY,z:f.z,dir:f.face,owner:f.id,life:m.life||1.6,speed:m.speed||12,damage:m.damage||12,stun:m.stun||.45,push:m.push||2.1,lift:m.lift||0,slow:m.slow||0,boomerang:!!m.boomerang,range:m.range||6,traveled:0,returning:false,hitTargets:[[],[]],piercing:!!m.piercing,power};
   shot.castId=m.castId??f.castId;
+  if(m.aimPoint){
+   const dx=m.aimPoint.x-shot.x,dz=m.aimPoint.z-shot.z,distance=Math.hypot(dx,dz)||1;
+   Object.assign(shot,{headingX:dx/distance,headingZ:dz/distance,launchY:shot.y,cruiseY:m.aimPoint.y,
+    heightBlendDistance:Math.min(1.65,distance),maxTargetY:m.maxTargetY,halfDepth:m.halfDepth});
+  }
   if(m.laneEnd!==undefined)Object.assign(shot,{
    laneEnd:m.laneEnd,halfDepth:m.lane,maxTargetY:m.maxTargetY,launchY:shot.y,cruiseY:f.y+m.cruiseY*scale
   });
@@ -628,14 +634,14 @@ class Game{
    }else{
     let d=(ball.speed||12)*dt;if(ball.boomerang)d=Math.min(d,ball.range-ball.traveled);
     if(ball.laneEnd!==undefined)d=Math.min(d,Math.max(0,(ball.laneEnd-ball.x)*ball.dir));
-    ball.x+=ball.dir*d;ball.traveled+=d;
+    ball.x+=(ball.headingX??ball.dir)*d;ball.z+=(ball.headingZ??0)*d;ball.traveled+=d;
      if(ball.targetHeightId!==undefined){
       const target=this.fighters.find(f=>f.id===ball.targetHeightId&&f.hp>0);
       if(target){
        const arrival=Math.max(dt,Math.abs(target.x-ball.x)/(ball.speed||12));
        ball.y+=(target.y+1.3*bodyScale(target)-ball.y)*(1-Math.exp(-dt*Math.max(18,3/arrival)));
       }
-     }else if(ball.cruiseY!==undefined)ball.y=ball.launchY+(ball.cruiseY-ball.launchY)*Math.min(1,ball.traveled/1.65);
+     }else if(ball.cruiseY!==undefined)ball.y=ball.launchY+(ball.cruiseY-ball.launchY)*Math.min(1,ball.traveled/(ball.heightBlendDistance??1.65));
     if(ball.boomerang&&(ball.traveled>=ball.range-1e-9||Math.abs(ball.x)>ARENA.halfWidth+1.5))ball.returning=true;
    }
    const segmentX=ball.x-oldX,segmentZ=ball.z-oldZ;

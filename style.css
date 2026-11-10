@@ -13,6 +13,22 @@
 
 #arena{isolation:isolate}
 
+/* Region cleared: a non-interactive direction cue, below the combat HUD. */
+#campaignAdvance{
+ position:fixed;right:clamp(18px,4vw,64px);top:48%;z-index:5;
+ display:flex;flex-direction:column;align-items:center;gap:8px;
+ color:#ffe4a4;pointer-events:none;user-select:none;
+ font:700 clamp(22px,2.3vw,34px)/1.25 'Honglei Xingshu','KaiTi',serif;
+ letter-spacing:.15em;text-shadow:0 2px 4px #231833,0 0 16px #47315d;
+}
+#campaignAdvance svg{
+ width:clamp(48px,4.8vw,70px);height:auto;overflow:visible;
+ fill:none;stroke:currentColor;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;
+ filter:drop-shadow(0 2px 3px #231833);animation:campaign-advance 1.3s ease-in-out infinite;
+}
+@keyframes campaign-advance{0%,100%{transform:translateX(-3px);opacity:.75}50%{transform:translateX(3px);opacity:1}}
+@media(prefers-reduced-motion:reduce){#campaignAdvance svg{animation:none}}
+
 .menu-actions{flex-wrap:wrap}
 body.skirmish:not(.boss-battle):not(.guard-target) #hud .enemy{visibility:hidden}
 

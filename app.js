@@ -73,7 +73,7 @@ function saveMessage(issue){
 }
 function checkpointLabel({level,afterRegion}){
  const config=campaignLevels[level],index=config.regions.findIndex(region=>region.id===afterRegion);
- const place=index<0?'关卡起点':index===config.regions.length-1?'已通关':'第 '+(index+1)+' 区后';
+ const place=index<0?'关卡起点':index===config.regions.length-1?'已通关':'第 '+(index+1)+' 波已完成';
  return '第 '+level+' 关 '+config.name+' · '+place;
 }
 function updateSaveMenu(){
@@ -105,7 +105,7 @@ function presentVictory(level,restored=false){
 }
 function recordCheckpoint(regionId){
  const replay=save.data.clearedLevels.includes(game.level),issue=replay?null:save.saveCheckpoint(game.level,regionId);
- say('区域已清空<small>'+(issue||replay?'':'检查点已保存 · ')+'继续向右前进 →</small>',2.5);
+ $('announcement').textContent='';announceTime=0;
  showSaveIssue(issue);
 }
 function recordVictory(level){
@@ -130,7 +130,7 @@ function begin(mode,level=1,afterRegion=null){
  $('enemyName').innerHTML=(mode==='training'?'木人':level===1?'烬':level===2?'疾风':'赤刃')+' <small>CPU</small>';
  $('stage').textContent=mode==='skirmish'?'剩余小怪':mode==='training'?'自由练习':`第 ${level} / 3 战`;
  if(game.campaignWon)presentVictory(level,true);
- else say(mode==='campaign'?Encounters.levels[level].name+`<small>第 ${level} 关 · ${afterRegion?'已从检查点恢复':'向右进入战斗区域'}</small>`:mode==='skirmish'?'小怪试战<small>击败场上的小怪</small>':mode==='training'?'自由练习<small>零消耗 · 零冷却 · 技能无限释放</small>':`第 ${level} 战<small>准备就绪</small>`,1.4);
+ else say(mode==='campaign'?Encounters.levels[level].name+`<small>第 ${level} 关 · ${afterRegion?'已从检查点恢复':'向右迎战第一波'}</small>`:mode==='skirmish'?'小怪试战<small>击败场上的小怪</small>':mode==='training'?'自由练习<small>零消耗 · 零冷却 · 技能无限释放</small>':`第 ${level} 战<small>准备就绪</small>`,1.4);
 }
 function menu(){GrowthUI.close();game.progression?.resetTemporary();clearUltimateName();if(game.encounter)applySkinStage();game.phase='menu';setVictoryPanel(false);helpPhase=null;game.encounter=null;game.fighters=[];game.monsters=[];game.projectiles=[];game.groundSpells=[];keys.clear();weaponUI(game.playerWeapon);['hud','battleFooter','pause','touchControls','result','pauseScreen','help'].forEach(id=>show(id,false));show('menu',true);document.body.classList.remove('playing','training','skirmish','boss-battle','guard-target');$('announcement').textContent='';$('toast').textContent='';show('combo',false);menuMessage('');}
 function pause(){
@@ -170,7 +170,7 @@ function chapterEntries(){
   const checkpoint=!cleared&&save.data.location?.level===level?save.data.location.afterRegion:null;
   const index=config.regions.findIndex(r=>r.id===checkpoint),art=ARENA_STAGES[config.stage];
   return {level,name:config.name,available,cleared,checkpoint,blocked:save.issue==='changed',current:!cleared&&(point?.level===level||!point&&level===save.firstLevel),
-   image:art.src,fallback:art.fallbackSrc,detail:cleared?'从关卡起点重新挑战':available?(index>=0?'继续第 '+(index+2)+' 个战斗区域':'从关卡起点进入'):'通过前一关后解锁'};
+   image:art.src,fallback:art.fallbackSrc,detail:cleared?'从关卡起点重新挑战':available?(index>=0?'继续第 '+(index+2)+' 波':'从关卡起点进入'):'通过前一关后解锁'};
  });
 }
 async function selectMenuCharacter(id){
@@ -253,7 +253,7 @@ const actions={KeyJ:'light',KeyK:'heavy',KeyU:'wave',KeyI:'super',Space:'jump',S
 window.addEventListener('keydown',e=>{if(GrowthUI.isOpen()){if(e.code==='Escape'){e.preventDefault();GrowthUI.close();}return;}if(newGameConfirm.open||chapters.isOpen())return;if(Wardrobe.isOpen()){if(e.code==='Escape'){e.preventDefault();Wardrobe.close();}return;}if(e.code==='Escape'){e.preventDefault();if(!$('help').classList.contains('hidden'))closeHelp();else if(game.phase==='paused')resume();else pause();return;}if(!game.acceptsInput)return;if(['KeyQ','KeyR'].includes(e.code)&&game.fighters[0].weapon!=='fan')return;if(['Space','KeyW','KeyA','KeyS','KeyD','KeyF','ArrowUp','ArrowDown','ArrowLeft','ArrowRight',...Object.keys(actions)].includes(e.code))e.preventDefault();keys.add(e.code);if(!e.repeat&&actions[e.code])game.queue(0,actions[e.code]);});
 window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden){keys.clear();pause();}});
 for(const b of document.querySelectorAll('#touchControls button')){b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);if(b.dataset.action)game.queue(0,b.dataset.action);else keys.add('touch-'+b.dataset.hold);};b.onpointerup=b.onpointercancel=b.onlostpointercapture=()=>{if(b.dataset.hold)keys.delete('touch-'+b.dataset.hold);};}
-function events(){for(const e of game.events){GrowthUI.effect(e);if(e.type==='lootCollected')toast(e.kind==='coins'?'+'+e.amount+' 奶币 · 已永久保存':'获得 '+e.name+' ×'+e.quantity+' · 已保存');if(e.type==='lootSaveError')toast(saveMessage(e.issue)+' 奶币仍留在地面，保存成功后才计入。');view.effect(e);if(e.type==='bellImpact')bellSound(e.kind);if(e.type==='capitalBlast')sound('hit');if(e.type==='morrisImpact')sound(e.final?'super':'hit');if(['attack','hit','block','super'].includes(e.type)&&!(e.type==='attack'&&e.weapon==='bow'))sound(e.weapon==='sword'&&e.type==='attack'?'sword':e.type);if(e.type==='arrow')sound('arrow');if(e.type==='spellCast')sound('super');if(e.type==='spellBurst')sound('hit');if(e.type==='regionStart')say(e.name+`<small>每 ${e.interval} 秒增援 · 同时最多 ${e.maxAlive} 只</small>`,2);if(e.type==='bossApproach')toast(Monsters.types[e.typeId].name+'正在靠近');if(e.type==='bossEnter'){const name=Monsters.types[e.typeId].name;if($('toast').textContent===name+'正在靠近')$('toast').textContent='';say(name+(e.typeId===CapitalEnemies.bossType?'<small>关卡首领登场</small>':'<small>小首领登场</small>'),1.45);sound('super');}if(e.type==='bossDefeated')toast(Monsters.types[e.typeId].name+'已击败');if(e.type==='regionClear'&&!e.complete)recordCheckpoint(e.regionId);if(e.type==='campaignVictory')recordVictory(e.level);if(e.type==='fight')say('开 战',.65);if(e.type==='cooldown')toast((e.name==='wave'?waveNames[game.playerWeapon]:ultimateNames[game.playerWeapon])+'还需 '+Math.ceil(e.remaining)+' 秒');if(e.type==='energyLow')toast('笑声值不足，命中或防守可以积累笑声值');if(e.type==='guardBreak')toast(e.enemy?'对手破防 3 秒 · 承伤提高 30%':e.id?'对手破防！抓住机会':'架势耗尽 · 硬直 2 秒');if(e.type==='super')showUltimateName(e);if(e.type==='ko')say('K.O.',1.2);if(e.type==='result'){show('result',true);const win=e.winner===0;$('resultTitle').textContent=win?(game.level===3?'挑战完成':'胜 利'):'再来一局';$('resultLabel').textContent=`${view.backdrop.name} · 第 ${game.level} 战`;$('resultCopy').textContent=win?(game.level<3?'下一位对手会更主动。保持节奏，继续前进。':'三位对手全部击败。试试更高的电脑强度。'):'留意出招后的破绽。防住攻击，再靠近反击。';ResultUI.stats(['statCombo','statDamage'],game.stats);$('next').textContent=win&&game.level<3?'下一战 →':'重新挑战';if(game.mode==='skirmish'){$('resultTitle').textContent=win?'小怪已清除':'再来一局';$('resultLabel').textContent=view.backdrop.name+' · 小怪试战';$('resultCopy').textContent=win?'场上的小怪已全部击败。':'留意小怪攻击前的蓄力，换个方向拉开距离。';$('next').textContent='再战一次';}if(game.mode==='campaign'){$('resultTitle').textContent='再来一局';$('resultLabel').textContent=`第 ${game.level} 关 · ${Encounters.levels[game.level].name}`;$('resultCopy').textContent='走位避开包围，留意两侧增援。';$('next').textContent='重新挑战';}$('next').focus();}}game.events=[];}
+function events(){for(const e of game.events){GrowthUI.effect(e);if(e.type==='lootCollected')toast(e.kind==='coins'?'+'+e.amount+' 奶币 · 已永久保存':'获得 '+e.name+' ×'+e.quantity+' · 已保存');if(e.type==='lootSaveError')toast(saveMessage(e.issue)+' 奶币仍留在地面，保存成功后才计入。');view.effect(e);if(e.type==='bellImpact')bellSound(e.kind);if(e.type==='capitalBlast')sound('hit');if(e.type==='morrisImpact')sound(e.final?'super':'hit');if(['attack','hit','block','super'].includes(e.type)&&!(e.type==='attack'&&e.weapon==='bow'))sound(e.weapon==='sword'&&e.type==='attack'?'sword':e.type);if(e.type==='arrow')sound('arrow');if(e.type==='spellCast')sound('super');if(e.type==='spellBurst')sound('hit');if(e.type==='regionStart')say('第 '+e.wave+' 波<small>共 '+e.totalWaves+' 波</small>',1.6);if(e.type==='bossApproach')toast(Monsters.types[e.typeId].name+'正在靠近');if(e.type==='bossEnter'){const name=Monsters.types[e.typeId].name;if($('toast').textContent===name+'正在靠近')$('toast').textContent='';say(name+(e.typeId===CapitalEnemies.bossType?'<small>关卡首领登场</small>':'<small>小首领登场</small>'),1.45);sound('super');}if(e.type==='bossDefeated')toast(Monsters.types[e.typeId].name+'已击败');if(e.type==='regionClear'&&!e.complete)recordCheckpoint(e.regionId);if(e.type==='campaignVictory')recordVictory(e.level);if(e.type==='fight')say('开 战',.65);if(e.type==='cooldown')toast((e.name==='wave'?waveNames[game.playerWeapon]:ultimateNames[game.playerWeapon])+'还需 '+Math.ceil(e.remaining)+' 秒');if(e.type==='energyLow')toast('笑声值不足，命中或防守可以积累笑声值');if(e.type==='guardBreak')toast(e.enemy?'对手破防 3 秒 · 承伤提高 30%':e.id?'对手破防！抓住机会':'架势耗尽 · 硬直 2 秒');if(e.type==='super')showUltimateName(e);if(e.type==='ko')say('K.O.',1.2);if(e.type==='result'){show('result',true);const win=e.winner===0;$('resultTitle').textContent=win?(game.level===3?'挑战完成':'胜 利'):'再来一局';$('resultLabel').textContent=`${view.backdrop.name} · 第 ${game.level} 战`;$('resultCopy').textContent=win?(game.level<3?'下一位对手会更主动。保持节奏，继续前进。':'三位对手全部击败。试试更高的电脑强度。'):'留意出招后的破绽。防住攻击，再靠近反击。';ResultUI.stats(['statCombo','statDamage'],game.stats);$('next').textContent=win&&game.level<3?'下一战 →':'重新挑战';if(game.mode==='skirmish'){$('resultTitle').textContent=win?'小怪已清除':'再来一局';$('resultLabel').textContent=view.backdrop.name+' · 小怪试战';$('resultCopy').textContent=win?'场上的小怪已全部击败。':'留意小怪攻击前的蓄力，换个方向拉开距离。';$('next').textContent='再战一次';}if(game.mode==='campaign'){$('resultTitle').textContent='再来一局';$('resultLabel').textContent=`第 ${game.level} 关 · ${Encounters.levels[game.level].name}`;$('resultCopy').textContent='走位避开包围，留意两侧增援。';$('next').textContent='重新挑战';}$('next').focus();}}game.events=[];}
 function updatePillarHint(player){
  if(player.weapon!=='magic')return;
  const pillar=game.groundSpells.find(spell=>spell.owner===player.id&&spell.kind==='pillar'&&!spell.fired);
@@ -265,7 +265,6 @@ function updatePillarHint(player){
 function updateCampaignHud(){
  syncVictoryControls();
  const region=game.encounter.active;
- const small=game.monsters.filter(enemy=>enemy.hp>0&&!enemy.isBoss).length;
  const boss=game.monsters.find(enemy=>enemy.hp>0&&enemy.isBoss);
  const guardTarget=boss||game.monsters.filter(enemy=>enemy.hp>0&&enemy.guardMax).sort((a,b)=>Math.hypot(a.x-game.fighters[0].x,a.z-game.fighters[0].z)-Math.hypot(b.x-game.fighters[0].x,b.z-game.fighters[0].z))[0];
  document.body.classList.toggle('guard-target',!!guardTarget);
@@ -282,25 +281,22 @@ function updateCampaignHud(){
   $('guard1').style.width=target.guard/target.guardMax*100+'%';
  }
  const exploring=game.phase==='explore';
- $('timer').textContent=exploring?'∞':small;
- $('stage').textContent=region
-  ? '区域 '+(game.encounter.regions.indexOf(region)+1)+'/'+game.encounter.regions.length+' · 已刷 '+region.spawned+'/'+region.total
-  : exploring?'自由探索':game.encounter.cleared?Encounters.levels[game.level].name+' · 已通关':'向右进入第 '+(game.encounter.regions.findIndex(r=>r.state==='waiting')+1)+' 区 →';
+ const waves=game.encounter.waveProgress;
+ $('timer').textContent=exploring?'∞':waves.current+'/'+waves.total;
+ $('timer').setAttribute('aria-label',exploring?'自由探索':'第 '+waves.current+' 波，共 '+waves.total+' 波');
+ $('stage').textContent=exploring?'自由探索':'当前波次';
  if(!region)return;
  let hint;
  if(boss?.bossMove==='finale'&&boss.state==='attack'){
   hint=boss.t>=Morris.finaleEnd?'破绽 · 受到伤害提高':boss.t>=3.1?'全场冲击波 · 跳跃躲避':'避开紫色落点';
  }else if(boss?.bossMove==='bombard'&&boss.state==='attack'&&boss.t<CapitalEnemies.boss.moves.bombard.impacts.at(-1)){
   hint='制裁轰炸 · 离开红色落点';
- }else if(region.spawned>=region.total)hint=boss?'击败首领与剩余敌人':region.boss&&!region.boss.entered&&!small?'首领即将登场':'清理剩余小怪';
- else if(region.boss&&!region.boss.entered&&region.spawned>=region.boss.after)hint='小首领即将登场';
- else if(small>=region.maxAlive)hint='增援暂停（满员）';
- else if(region.pending)hint='增援待入场';
- else hint='下次增援 '+Math.ceil(region.interval-region.elapsed)+' 秒';
- $('energyHint').textContent+=' · '+hint;
+ }
+ if(hint)$('energyHint').textContent+=' · '+hint;
 }
 function hud(){
  GrowthUI.update();
+  show('campaignAdvance',game.mode==='campaign'&&game.phase==='fight'&&!!game.encounter&&!game.encounter.active&&!game.encounter.cleared&&game.encounter.regions.some(region=>region.state==='cleared'));
  if(!game.fighters.length)return;
  for(let i=0;i<game.fighters.length;i++){
   const f=game.fighters[i];$('hp'+i).style.width=f.hp/f.maxHP*100+'%';$('hpText'+i).textContent=Number(f.hp.toFixed(2))+' / '+Number(f.maxHP.toFixed(2));

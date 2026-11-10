@@ -2,6 +2,7 @@
 (function(root){
 'use strict';
 const rules=[
+ ['.round-center',':scope>#timer','parent'],
  ['.result-stats','.result-stat__value','parent'],
  ['.showcase-attributes',':scope>div>b','parent'],
  ['.growth-attribute-values',':scope>b','self'],

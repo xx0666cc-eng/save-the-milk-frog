@@ -14,7 +14,7 @@ class ArenaView{
  }
  prepareStage(skinId){return this.backdrop.prepare(skinId);}
  applyStage(stage){
-  this.monsterViews.bellView.ritual.clearPresentation();this.setBellSceneTone(0);
+  this.monsterViews.bellView.ritual.clearPresentation();this.monsterViews.silencedView.clear();this.setBellSceneTone(0);
   this.backdrop.apply(stage);this.legacyArena.visible=!stage;this.scene.background=stage?null:this.defaultBackground;this.scene.fog=stage?null:this.defaultFog;
   this.hemi.color.setHex(stage?.sky||0xfce9d0);this.sun.color.setHex(stage?.sun||0xffd2a0);this.hemi.intensity=stage?2.2:2.7;this.sun.intensity=stage?2.5:3.2;
   this.sun.shadow.camera.left=-20;this.sun.shadow.camera.right=20;this.sun.shadow.camera.updateProjectionMatrix();
@@ -111,10 +111,10 @@ class ArenaView{
   this.fighters[1].root.visible=this.fighters[1].shadow.visible=!!fs[1];
   const bounds=game.encounter?.bounds(game)||{left:-Combat.ARENA.halfWidth,right:Combat.ARENA.halfWidth};
   const targetId=fs[0].autoAttack?.targetId;
-  this.monsterViews.render(game.monsters,this.camera,game.time,bounds,targetId,game.phase);
+  this.monsterViews.render(game.monsters,this.camera,game.time,bounds,targetId,game.phase,game.projectiles);
   fs.forEach((f,i)=>this.fighters[i].update({...f,autoTargeted:f.id===targetId,hitStop:game.freeze>0,celebrate:game.phase==='result'&&game.winner===i},game.time||clock));
   for(let i=this.fx.length-1;i>=0;i--){const f=this.fx[i];f.life-=dt;if(f.life<=0){this.scene.remove(f.o);f.o.geometry.dispose();if(f.ring||f.beam)f.o.material.dispose();this.fx.splice(i,1);continue;}if(f.v){f.o.position.addScaledVector(f.v,dt);f.v.y-=18*dt;f.o.rotation.z+=dt*8;}if(f.ring)f.o.scale.setScalar(1+(1-f.life/f.max)*4);if(f.ring||f.beam)f.o.material.opacity=f.life/f.max;}
-  const genericProjectiles=game.projectiles.filter(p=>!CapitalVfx.owns(p)&&!SakuraRoninView.owns(p)&&!BellMasterView.owns(p));
+  const genericProjectiles=game.projectiles.filter(p=>!CapitalVfx.owns(p)&&!SakuraRoninView.owns(p)&&!BellMasterView.owns(p)&&!SilencedView.owns(p));
   while(this.projectileMeshes.length<genericProjectiles.length){
    const g=new T.Group(),wave=new T.Group(),arrow=new T.Group(),blade=new T.Group(),orb=new T.Group();
    wave.add(new T.Mesh(new T.IcosahedronGeometry(.33,1),this.mat(0x83f6e9,true)),new T.Mesh(new T.TorusGeometry(.43,.035,6,24),this.mat(0xb1fff4,true)));

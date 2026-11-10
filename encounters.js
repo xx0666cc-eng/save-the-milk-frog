@@ -21,6 +21,12 @@ class Director{
   this.active=null;this.halfWidth=config.cameraHalfWidth(16/9,true);
  }
  get cleared(){return this.regions.every(r=>r.state==='cleared');}
+ get waveProgress(){
+  // A complete region is one wave; timed batches never advance the display.
+  const total=this.regions.length;
+  const current=this.active?this.regions.indexOf(this.active)+1:this.regions.filter(r=>r.state==='cleared').length;
+  return {current:Math.max(1,Math.min(total,current)),total};
+ }
  restoreCheckpoint(afterRegion){
   const index=this.regions.findIndex(region=>region.id===afterRegion);
   if(index<0)return null;
@@ -85,7 +91,7 @@ class Director{
   if(!this.active){
    const next=this.regions.find(r=>r.state==='waiting');
    if(!next||player.x<next.triggerX)return;
-   this.active=next;next.state='active';game.emit('regionStart',{name:next.name,interval:next.interval,maxAlive:next.maxAlive});
+   this.active=next;next.state='active';game.emit('regionStart',{name:next.name,interval:next.interval,maxAlive:next.maxAlive,wave:this.waveProgress.current,totalWaves:this.waveProgress.total});
   }
   const r=this.active;
   this.constrain(game);
@@ -152,11 +158,11 @@ const sakuraRegions=[
 ];
 const requiemRegions=[
  {id:'requiem-1',name:'万籁归寂 · 区域 1 / 3',triggerX:-16,cameraX:-16,interval:3,
-  types:['dozer','bucket','puff'],batchSize:4,total:16,maxAlive:10},
+  types:['silenced-shade','silenced-guard','silenced-shade','silenced-cantor'],batchSize:4,total:16,maxAlive:10},
  {id:'requiem-2',name:'万籁归寂 · 区域 2 / 3',triggerX:-2,cameraX:-2,interval:2.75,
-  types:['bucket','puff','dozer'],batchSize:3,total:18,maxAlive:12},
+  types:['silenced-guard','silenced-shade','silenced-cantor'],batchSize:3,total:18,maxAlive:12},
  {id:'requiem-3',name:'万籁归寂 · 区域 3 / 3',triggerX:12,cameraX:12,interval:2.75,
-  types:['puff','bucket','dozer','bucket'],batchSize:4,total:20,maxAlive:12,
+  types:['silenced-shade','silenced-guard','silenced-shade','silenced-cantor'],batchSize:4,total:20,maxAlive:12,
   boss:{type:'bell-master',after:20,afterClear:true,entranceDelay:1.2}}
 ];
 const levels={

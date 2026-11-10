@@ -46,11 +46,12 @@ class MonsterViews{
   this.thunderBeastView=new ThunderBeastView(scene,this.textures);
   this.sakuraView=new SakuraRoninView(scene,this.textures);
   this.bellView=new BellMasterView(scene,this.textures);
+  this.silencedView=new SilencedView(scene,this.textures);
  }
  async prepare(bossTypes=[]){
   const assets=[];
   for(const [type,profile] of Object.entries(Monsters.types)){
-   if(type===SakuraRonin.type||type===BellMaster.type)continue;
+   if(type===SakuraRonin.type||type===BellMaster.type||SilencedEnemies.owns({monsterType:type}))continue;
    if(profile.frames){
     if(!bossTypes.includes(profile.elite?CapitalEnemies.bossType:type))continue;
     const offline=type===CapitalEnemies.bossType||profile.elite?window.CAPITAL_TEXTURES:
@@ -71,7 +72,7 @@ class MonsterViews{
   }));
   if(bossTypes.includes(ThunderBeast.type))await ThunderBeastMotion.View.prepare(this.textures);
   if(bossTypes.includes(SakuraRonin.type))await SakuraRoninMotion.prepare(this.textures);
-  if(bossTypes.includes(BellMaster.type))await BellMasterMotion.prepare(this.textures);
+  if(bossTypes.includes(BellMaster.type))await Promise.all([BellMasterMotion.prepare(this.textures),SilencedView.prepare(this.textures)]);
  }
  create(monster){
   const type=monster.monsterType,profile=Monsters.types[type];
@@ -85,7 +86,7 @@ class MonsterViews{
   background.renderOrder=10;fill.renderOrder=11;
   bar.add(background,fill);billboard.add(sprite,bar);root.add(billboard);this.scene.add(root);
   const warning=type==='doze-chief'?makeBossWarning(this.scene):null;
-  const motion=type===BellMaster.type?BellMasterMotion.create(sprite,this.textures):type===SakuraRonin.type?SakuraRoninMotion.create(sprite,this.textures):type===ThunderBeast.type&&this.textures.has('thunder-motion/walk')?new ThunderBeastMotion.View(sprite,this.textures):null;
+  const motion=SilencedEnemies.owns(monster)?SilencedView.createMotion(sprite,this.textures,profile):type===BellMaster.type?BellMasterMotion.create(sprite,this.textures):type===SakuraRonin.type?SakuraRoninMotion.create(sprite,this.textures):type===ThunderBeast.type&&this.textures.has('thunder-motion/walk')?new ThunderBeastMotion.View(sprite,this.textures):null;
   return {root,billboard,sprite,shadow,bar,fill,profile,warning,motion,width:profile.height*texture.image.width/texture.image.height};
  }
  poseFramed(view,monster,phase,bounce,breathe,opacity,bounds){
@@ -118,7 +119,7 @@ class MonsterViews{
   sprite.position.set((.5-frame.anchorX)*signedWidth+lunge,(frame.footY-1)*height+bounce+lift,.03);
   if(view.warning)updateBossWarning(view.warning,monster,move,bounds);
  }
- render(monsters,camera,time,bounds,targetId=null,battlePhase='fight'){
+ render(monsters,camera,time,bounds,targetId=null,battlePhase='fight',projectiles=[]){
   const visible=new Set();
   for(const monster of monsters){
    const dead=monster.hp<=0;
@@ -151,7 +152,7 @@ class MonsterViews{
     sprite.material.opacity=opacity;
    }
    bar.visible=!dead&&!profile.boss;
-   bar.position.set(0,profile.height+.24/scale+bounce,.09);
+   bar.position.set(0,(profile.barHeight??profile.height)+.24/scale+bounce,.09);
    bar.scale.setScalar(1/scale);
    const fraction=monster.hp/monster.maxHP;
    fill.scale.set(1.05*fraction,.043,1);fill.position.x=(fraction-1)*.525;
@@ -170,6 +171,7 @@ class MonsterViews{
   this.thunderBeastView.render(monsters,camera,this.views,time);
   this.sakuraView.render(monsters,camera,time,bounds);
   this.bellView.render(monsters,camera,time,bounds,battlePhase);
+  this.silencedView.render(monsters,this.views,camera,time,projectiles,battlePhase);
  }
 }
 window.MonsterViews=MonsterViews;

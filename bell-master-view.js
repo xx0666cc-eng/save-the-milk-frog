@@ -19,9 +19,68 @@ void main(){vec2 p=point-.5;vec2 q=mat2(cos(spin),-sin(spin),sin(spin),cos(spin)
  gl_FragColor=vec4(rgb,c.a*opacity);
  #include <colorspace_fragment>
 }`;
+// Independent, bounded world-space wisps. No body copies or blur pass.
+class DriftMist{
+ constructor(scene){this.scene=scene;this.units=new Map();this.reduced=root.matchMedia?.('(prefers-reduced-motion: reduce)');}
+ dispose(v){for(const p of v.particles){this.scene.remove(p.mesh);p.mesh.material.dispose();}v.geometry.dispose();}
+ clear(){for(const v of this.units.values())this.dispose(v);this.units.clear();}
+ create(e,time){
+  const geometry=new T.PlaneGeometry(1,1),c=BellMasterMotion.config.mist;
+  const particles=Array.from({length:c.max},()=>{
+   const material=new T.ShaderMaterial({uniforms:{age:{value:0},opacity:{value:0},seed:{value:0}},vertexShader,
+    fragmentShader:`uniform float age,opacity,seed;varying vec2 point;
+    void main(){vec2 p=(point-.5)*2.;
+     p.x+=sin(p.y*5.+age*3.+seed)*.15;p.y+=sin(p.x*4.-age*2.+seed)*.09;
+     float cloud=exp(-dot(p*vec2(1.2,1.65),p*vec2(1.2,1.65))*3.2);
+     float curl=.56+.24*sin(p.x*9.+p.y*6.+seed+age*2.)+.15*sin(p.y*17.-p.x*5.+age*3.);
+     float edge=1.-smoothstep(.45,1.,length((point-.5)*2.));
+     gl_FragColor=vec4(vec3(.73,.74,.77),cloud*curl*edge*opacity);
+     #include <colorspace_fragment>
+    }`,transparent:true,depthTest:false,depthWrite:false,side:T.DoubleSide,toneMapped:false});
+   const mesh=new T.Mesh(geometry,material);mesh.visible=false;this.scene.add(mesh);return {mesh,age:c.life};
+  });
+  return {geometry,particles,lastTime:time,lastX:e.x,lastZ:e.z,credit:0,serial:0};
+ }
+ render(monsters,camera,time,phase){
+  const ids=new Set(),c=BellMasterMotion.config.mist;
+  for(const e of monsters){
+   if(e.monsterType!==BellMaster.type||e.hp<=0)continue;
+   ids.add(e.id);let v=this.units.get(e.id);if(!v){v=this.create(e,time);this.units.set(e.id,v);}
+   const elapsed=time-v.lastTime,dt=Math.max(0,Math.min(.1,elapsed)),dx=e.x-v.lastX,dz=e.z-v.lastZ;
+   const discontinuity=elapsed<0||elapsed>.25||Math.hypot(dx,dz)>BellMasterMotion.config.teleportDistance;
+   const speed=dt&&!discontinuity?Math.min(BellMaster.profile.speed,Math.hypot(dx,dz)/elapsed):0;
+   const ratio=clamp(speed/BellMaster.profile.speed),scale=ArenaConfig.bodyScale(e);
+   const moving=phase==='fight'&&e.state==='run'&&speed>c.minSpeed&&!this.reduced?.matches;
+   if(discontinuity){v.credit=0;for(const p of v.particles)p.age=c.life;}
+   for(const p of v.particles)p.age+=dt;
+   // High-refresh displays can render the same fixed-step game clock twice.
+   // Preserve fractional emission credit on those frames (also during pause).
+   if(dt>0)v.credit=moving?Math.min(2,v.credit+dt*c.rate*ratio):0;
+   while(v.credit>=1){
+    v.credit--;const p=v.particles.find(p=>p.age>=c.life);if(!p)break;
+    const seed=++v.serial*2.39996,dirX=dx/Math.max(.001,Math.hypot(dx,dz)),dirZ=dz/Math.max(.001,Math.hypot(dx,dz));
+    Object.assign(p,{age:0,x:e.x-dirX*.7*scale,z:e.z-dirZ*.7*scale,y:e.y+(.3+.15*Math.sin(seed))*scale,
+     vx:-dirX*c.drift*ratio,vz:-dirZ*c.drift*ratio,seed,scale,ratio});
+   }
+   for(const p of v.particles){
+    const mesh=p.mesh,q=clamp(p.age/c.life);mesh.visible=q<1;if(!mesh.visible)continue;
+    const size=c.size*(.8+p.ratio*.35+q*.8)*p.scale;
+    mesh.position.set(p.x+p.vx*p.age,p.y+p.age*c.rise*p.scale,p.z+p.vz*p.age);
+    mesh.quaternion.copy(camera.quaternion);mesh.rotateZ(p.seed*.4+p.age*.16);mesh.scale.set(size*1.3,size,1);
+    mesh.renderOrder=ArenaConfig.actorDepthOrder({z:p.z})-.02;
+    const u=mesh.material.uniforms;u.age.value=p.age;u.seed.value=p.seed;
+    u.opacity.value=c.opacity*(.5+.5*p.ratio)*Math.sin(Math.PI*q)*(1-q);
+   }
+   v.lastTime=time;v.lastX=e.x;v.lastZ=e.z;
+  }
+  for(const [id,v] of this.units)if(!ids.has(id)){
+   this.dispose(v);this.units.delete(id);
+  }
+ }
+}
 class BellMasterView{
  static owns(p){return ['netherCrescent','netherQuick'].includes(p.kind);}
- constructor(scene,textures){this.scene=scene;this.textures=textures;this.units=new Map();this.shots=[];this.ritual=new BellRitualView(scene,this);}
+ constructor(scene,textures){this.scene=scene;this.textures=textures;this.units=new Map();this.shots=[];this.ritual=new BellRitualView(scene,this);this.driftMist=new DriftMist(scene);}
  effect(asset,index=0){
   const a=root.BELL_MASTER_MOTION_DATA[asset],f=a.frames[index],[x,y,w,h]=f.cell;
   const mesh=new T.Mesh(new T.PlaneGeometry(1,1).translate(.5-f.anchor[0]/w,f.anchor[1]/h-.5,0),new T.ShaderMaterial({
@@ -54,6 +113,7 @@ class BellMasterView{
   warning.renderOrder=rim.renderOrder=-8;this.scene.add(warning,rim);return {charge,warning,rim};
  }
  render(monsters,camera,time,bounds,phase='fight'){
+  this.driftMist.render(monsters,camera,time,phase);
   const ids=new Set();
   for(const e of monsters){
    if(e.monsterType!==BellMaster.type||e.hp<=0)continue;

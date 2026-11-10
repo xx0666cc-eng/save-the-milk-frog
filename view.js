@@ -14,7 +14,7 @@ class ArenaView{
  }
  prepareStage(skinId){return this.backdrop.prepare(skinId);}
  applyStage(stage){
-  this.monsterViews.bellView.ritual.clearPresentation();this.monsterViews.silencedView.clear();this.setBellSceneTone(0);
+  this.monsterViews.bellView.ritual.clearPresentation();this.monsterViews.bellView.driftMist.clear();this.monsterViews.silencedView.clear();this.setBellSceneTone(0);
   this.backdrop.apply(stage);this.legacyArena.visible=!stage;this.scene.background=stage?null:this.defaultBackground;this.scene.fog=stage?null:this.defaultFog;
   this.hemi.color.setHex(stage?.sky||0xfce9d0);this.sun.color.setHex(stage?.sun||0xffd2a0);this.hemi.intensity=stage?2.2:2.7;this.sun.intensity=stage?2.5:3.2;
   this.sun.shadow.camera.left=-20;this.sun.shadow.camera.right=20;this.sun.shadow.camera.updateProjectionMatrix();

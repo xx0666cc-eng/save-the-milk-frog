@@ -186,6 +186,10 @@ This document records the existing local fighting-game prototype: articulated te
 - Turquoise identifies the player; coral identifies the CPU.
 - Warm low-poly scenery contrasts with dark blue-green controls and cream text.
 
+### 灰雾古钟移动动画 — 2026-11-10
+
+`bell-master` 延续原有阴森、厚重的钟体/兜帽/破袍形象，不替换 PNG。待机及移动保持单张清晰姿势，通过局部着色器微变形表现袍摆拖曳、不同步臂摆及巨钟延迟；整体仅作小幅悬浮、倾斜与阻尼回摆，不整体拉伸、不复制身体残影、不使用运动模糊。速度取真实地面位移，附加动作随攻击/受击降低权重，所有动画随游戏时钟冻结。灰白世界坐标拖尾最多 12 个小粒子，停止后 .78 秒内消散，换场清空；减少动态效果降低幅度并停止新拖尾。集中参数、实现边界与实际验收见 [Boss移动动画说明](Boss移动动画说明.md)。
+
 ### Growth UI extension — 2026-11-07
 
 本次为既有界面的局部扩展。局外角色强化、背包和局内成长 HUD 延续蓝绿底色与奶金强调，并按用户明确方向采用圆润卡通游戏控件；头像打开的角色信息卡按用户提供的深棕金边参考建立独立材质。新增 `growth-*` 与 `info-*` token 只作用于相应组件，不替代旧菜单、战斗 HUD 和既有全局 token。

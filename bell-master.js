@@ -7,7 +7,7 @@ const profile={
  name:'终焉之主.无相',boss:true,hp:360,height:7.25,speed:2.65,guardMax:160,
  frames:{idle:{image:'assets/monsters/bell-master/hover.png'}},
  phase:{threshold:.5},
- movement:{standOff:5.8,alignTolerance:.18,castLane:.55,approachRate:7,ritualArrival:.08},
+ movement:{standOff:5.8,alignTolerance:.18,castLane:.55,approachRate:10,brakeRate:13,turnRate:12,brakeDistance:.65,ritualArrival:.08},
  ultimate:{triggerHP:.5,once:true},
  moves:{
   basic:{name:'幽冥速斩',referenceWeapon:'president',sequence:['jab','cross','finisher'],speedMultiplier:2,
@@ -35,9 +35,37 @@ const profile={
    visual:{crownRest:4.75,crownHeight:3.25,crownLift:6.45,crownGrownHeight:6.10,
     tideHeight:[1.8,2.5,3.3,4.2],terminalHeight:8.5,maxShake:5}}
  },
- poise(enemy){const m=this.moves[enemy.bossMove];return enemy.state==='attack'&&enemy.bossMove!=='basic'&&!!m&&enemy.t<m.windup+m.active;}
+ poise(enemy){const m=this.moves[enemy.bossMove];return enemy.state==='attack'&&enemy.bossMove!=='basic'&&!!m&&enemy.t<m.windup+m.active;},
+ // One derived protection source for targeting, damage and guard damage. No
+ // invulnerability timer/boolean can outlive the actual protected animation.
+ protection,
+ limitHP(enemy,nextHP){return !enemy.bellPhase2&&enemy.hp>0?Math.max(Math.min(1,enemy.hp),nextHP):nextHP;},
+ afterHurt(enemy,game){return enterPhase(enemy,game.fighters[0],game.encounter?.bounds(game)??{left:-world.halfWidth,right:world.halfWidth});},
+ endBattle(enemy){
+  if(enemy.bossMove==='requiem'){
+   if(enemy.state==='attack')enemy.state=enemy.hp>0?'idle':'dead';
+   enemy.bossMove=null;enemy.bossCast=null;
+  }
+  enemy.bellWaves=[];enemy.ritualTarget=null;
+ }
 };
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+function protection(enemy){
+ const m=profile.moves.requiem,cast=enemy.bossCast;
+ if(enemy.hp<=0||enemy.state!=='attack'||enemy.bossMove!=='requiem'||cast?.kind!=='requiem'||
+    enemy.stun>0||enemy.guardBreakTime>0||!Number.isFinite(enemy.t)||enemy.t<0||enemy.t+1e-9>=m.windup+m.active+m.recover)return null;
+ return cast.phaseEntry&&enemy.t<m.stages[1].end?'transform':'requiem';
+}
+function enterPhase(enemy,player,bounds){
+ if(enemy.bellPhase2||enemy.hp<=0||enemy.hp>enemy.maxHP*profile.phase.threshold)return false;
+ enemy.bellPhase2=true;
+ // Threshold damage owns this transition, including a hit during another cast,
+ // guard break or airborne reaction. Preserve remaining HP; never refill it.
+ enemy.stun=enemy.guardBreakTime=enemy.airHits=0;
+ enemy.vy=0;enemy.attack=enemy.buffer=null;
+ begin(enemy,'requiem',player,bounds);enemy.bossCast.phaseEntry=true;
+ return true;
+}
 function basicMove(index=0){
  // Resolve after Combat has loaded; its dependency on Monsters/BellMaster stays acyclic at initialization.
  const combat=typeof module!=='undefined'?require('./combat.js'):root.Combat;
@@ -80,7 +108,7 @@ function begin(enemy,kind,player,bounds){
  }
  if(kind==='requiem'){enemy.bellFinaleUsed=true;enemy.ritualTarget=null;}
  enemy.motionVX=enemy.motionVZ=0;
- enemy.vx=enemy.pullVZ=0;
+ enemy.walkVX=enemy.walkVZ=enemy.vx=enemy.pullVZ=0;
 }
 function cue(enemy,kind){enemy.bellImpactSerial=(enemy.bellImpactSerial||0)+1;enemy.bellImpactKind=kind;}
 function fallContains(cast,player,scale=1){
@@ -123,24 +151,38 @@ function walk(enemy,dx,dz,dt,standOff=0,align=0){
  const m=profile.movement;
  const mx=Math.abs(dx)>standOff?Math.sign(dx)*(Math.abs(dx)-standOff):0;
  const mz=Math.abs(dz)>align?Math.sign(dz)*(Math.abs(dz)-align):0;
- const length=Math.hypot(mx,mz),speed=profile.speed*(enemy.slow>0?.7:1),blend=1-Math.exp(-m.approachRate*dt);
- enemy.motionVX=(enemy.motionVX||0)+((length?mx/length*speed:0)-(enemy.motionVX||0))*blend;
- enemy.motionVZ=(enemy.motionVZ||0)+((length?mz/length*speed:0)-(enemy.motionVZ||0))*blend;
- enemy.walkVX=Math.sign(mx)*Math.min(Math.max(0,enemy.motionVX*Math.sign(mx)),Math.abs(mx)/dt);
- enemy.walkVZ=Math.sign(mz)*Math.min(Math.max(0,enemy.motionVZ*Math.sign(mz)),Math.abs(mz)/dt);
+ const length=Math.hypot(mx,mz),speed=profile.speed*(enemy.slow>0?.7:1)*Math.min(1,length/m.brakeDistance);
+ const targetX=length?mx/length*speed:0,targetZ=length?mz/length*speed:0;
+ const oldX=enemy.motionVX||0,oldZ=enemy.motionVZ||0;
+ const turning=oldX*targetX+oldZ*targetZ<0;
+ const rate=turning?m.turnRate:Math.hypot(targetX,targetZ)<Math.hypot(oldX,oldZ)?m.brakeRate:m.approachRate;
+ const blend=1-Math.exp(-rate*dt);
+ // Keep signed momentum on reversal and coast into the dead zone instead of
+ // clipping each opposing velocity component to zero in a single frame.
+ const limit=(velocity,gap)=>gap*velocity>0?Math.sign(velocity)*Math.min(Math.abs(velocity),Math.abs(gap)/dt):velocity;
+ enemy.motionVX=limit(oldX+(targetX-oldX)*blend,mx);
+ enemy.motionVZ=limit(oldZ+(targetZ-oldZ)*blend,mz);
+ if(!length&&Math.hypot(enemy.motionVX,enemy.motionVZ)<.015)enemy.motionVX=enemy.motionVZ=0;
+ enemy.walkVX=enemy.motionVX;enemy.walkVZ=enemy.motionVZ;
  enemy.state=Math.hypot(enemy.walkVX,enemy.walkVZ)>.025?'run':'idle';
 }
 function steer(enemy,player,dt,bounds){
  const scale=bodyScale(enemy),move=profile.movement;
  enemy.attackCooldown=Math.max(0,enemy.attackCooldown-dt);
  const cds=enemy.bossCooldowns??={};for(const key of Object.keys(cds))cds[key]=Math.max(0,cds[key]-dt);
- enemy.bellPhase2=enemy.bellPhase2||enemy.hp<=enemy.maxHP*profile.phase.threshold;
+ // Also covers HP changes made by encounter setup; ordinary damage enters
+ // synchronously in profile.afterHurt, before another source can hit this step.
+ if(enterPhase(enemy,player,bounds))return null;
  const waveHit=advanceWaves(enemy,player,dt);
  if(enemy.stun>0){enemy.state='stun';enemy.nextBasicStage=0;enemy.motionVX=enemy.motionVZ=0;return waveHit;}
  if(enemy.state==='attack'){
-  const cast=enemy.bossCast,m=cast.move??profile.moves[cast.kind];
+  const cast=enemy.bossCast;
+  if(!cast||cast.kind!==enemy.bossMove||!profile.moves[cast.kind]||!Number.isFinite(enemy.t)){
+   enemy.state='idle';enemy.t=0;enemy.bossCast=null;enemy.bossMove=null;return waveHit;
+  }
+  const m=cast.move??(cast.kind==='basic'?basicMove():profile.moves[cast.kind]);
   const total=cast.kind==='basic'?m.interval:m.windup+m.active+m.recover;
-  if(enemy.t>=total){enemy.state='idle';if(cast.kind!=='basic'||m.stage===profile.moves.basic.sequence.length-1)return waveHit;}
+  if(enemy.t+1e-9>=total){enemy.state='idle';if(cast.kind!=='basic'||m.stage===profile.moves.basic.sequence.length-1)return waveHit;}
   else{
   if(cast.kind==='requiem'){
    const at=m.impacts[cast.nextImpact];
@@ -162,13 +204,6 @@ function steer(enemy,player,dt,bounds){
  }
  const dx=player.x-enemy.x,dz=player.z-enemy.z;
  if(Math.abs(dx)>.15)enemy.face=Math.sign(dx);
- if(!enemy.bellFinaleUsed&&enemy.hp<=enemy.maxHP*profile.ultimate.triggerHP&&!(enemy.guardBreakTime>0)){
-  if(enemy.y>.04){enemy.state='jump';enemy.motionVX=enemy.motionVZ=0;return waveHit;}
-  const target=enemy.ritualTarget??={x:(bounds.left+bounds.right)*.5,z:0};
-  if(Math.hypot(target.x-enemy.x,target.z-enemy.z)<=move.ritualArrival)begin(enemy,'requiem',player,bounds);
-  else walk(enemy,target.x-enemy.x,target.z-enemy.z,dt);
-  return waveHit;
- }
  if(!enemy.attackCooldown&&enemy.y<.04){
   const order=['rift','fall'],start=enemy.nextBellMove??0;
   for(let i=0;i<order.length;i++){

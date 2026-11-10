@@ -109,9 +109,10 @@ function projectileBounds(ball,enemy){
  return {width:(enemy.isBoss?1.02:.65)*scale+(ball.kind==='firedStamp'?.30:0),
   depth:(ball.halfDepth??PROJECTILE_DEPTH.halfDepth[ball.kind]??PROJECTILE_DEPTH.halfDepth.wave)+PROJECTILE_DEPTH.targetHalfDepth[type]*scale+PROJECTILE_DEPTH.tolerance};
 }
+function targetable(enemy){return enemy.hp>0&&!monsters.types[enemy.monsterType]?.protection?.(enemy);}
 function canHurtAt(enemy,atY,kind){
  const arrow=kind==='arrow',scale=bodyScale(enemy);
- return !(enemy.inv>0||enemy.hp<=0||Math.abs(enemy.y+(arrow?1.65:1.2)*scale-atY)>(arrow?1:1.4)*scale);
+ return targetable(enemy)&&!(enemy.inv>0||Math.abs(enemy.y+(arrow?1.65:1.2)*scale-atY)>(arrow?1:1.4)*scale);
 }
 function moveBody(f,dt,move,depth){
  f.x=clamp(f.x+(move+f.vx)*dt,-ARENA.halfWidth,ARENA.halfWidth);
@@ -149,6 +150,7 @@ class Game{
   if(mode==='campaign'&&!campaign)throw new RangeError('Campaign level is not available: '+level);
   if(mode==='skirmish'&&(!waves.length||waves.some(group=>!group.length||group.some(({type})=>!Object.hasOwn(monsters.types,type)))))
    throw new RangeError('A skirmish requires at least one valid spawn per wave');
+  this.clearEnemyStates();
   this.mode=mode;this.level=level;this.difficulty=difficulty;this.monsters=[];
   this.castSerial=0;
   const player=new Fighter(0,-3,PLAYER_STATS[this.playerWeapon].hp);
@@ -181,12 +183,14 @@ class Game{
   this.monsters.push(monster);return monster;
  }
  spawnWave(){
+  this.clearEnemyStates();
   this.monsters=[];
   for(const {type,x,z} of this.monsterWaves[this.waveIndex])this.spawnMonster(type,x,z);
  }
+ canTarget(enemy){return targetable(enemy);}
  opponents(f){
-  if(f.id!==0)return [this.fighters[0]];
-  return ['skirmish','campaign'].includes(this.mode)?this.monsters.filter(m=>m.hp>0):this.fighters.slice(1);
+  const list=f.id!==0?[this.fighters[0]]:['skirmish','campaign'].includes(this.mode)?this.monsters:this.fighters.slice(1);
+  return list.filter(enemy=>enemy&&targetable(enemy));
  }
  target(f){
   let nearest,score=Infinity;
@@ -220,10 +224,17 @@ class Game{
   return w.attackable&&forward>=w.minX&&forward<w.maxX&&Math.abs(enemy.z-f.z)<w.depth;
  }
  finish(winner){
+  this.clearEnemyStates();
   autoAttacks.cancel(this.fighters[0]);
   for(const f of this.fighters)f.superCasts=[];
   this.projectiles=[];this.phase='ko';this.koTime=1.3;this.winner=winner;this.emit('ko',{winner});
   this.progression?.resetTemporary();
+ }
+ clearEnemyStates(){for(const enemy of this.monsters)monsters.types[enemy.monsterType]?.endBattle?.(enemy);}
+ updateHealthState(enemy){
+  if(!monsters.types[enemy.monsterType]?.afterHurt?.(enemy,this))return;
+  if(this.fighters[0]?.autoAttack?.targetId===enemy.id)autoAttacks.cancel(this.fighters[0]);
+  this.emit('bossPhase',{id:enemy.id,phase:2});
  }
  exploreCampaign(){
   if(!this.campaignWon)return false;
@@ -397,7 +408,7 @@ class Game{
   else if(d>2.5&&r<.08)this.queue(1,'jump');
  }
  damageGuard(a,b,m){
-  if(a.id!==0||!b.guardMax||b.hp<=0)return;
+  if(a.id!==0||!b.guardMax||!targetable(b))return;
   b.guardIdle=0;
   if(b.guardBreakTime>0||b.guard<=0)return;
   const name=m.attackName??m.variant??a.attack??'jab',amount=GUARD_RULES.damage[name];
@@ -416,6 +427,7 @@ class Game{
  }
  hurt(a,b,m,atY,projectile=false,source=null){
   if(!canHurtAt(b,atY,source?.kind))return false;
+  const profile=monsters.types[b.monsterType];
   const dir=source?.dir??a.face,weapon=source?.weapon||a.weapon,front=((source?.x??a.x)-b.x)*b.face>=-.15;
   if(!m.unblockable&&b.state==='guard'&&front&&b.y===0){
    const before=b.hp;
@@ -423,9 +435,9 @@ class Game{
    this.applyLifesteal(a,before-b.hp);
    a.energy=clamp(a.energy+4,0,100);b.energy=clamp(b.energy+3,0,100);
    a.hit=true;this.freeze=.045;this.emit('block',{x:b.x,y:atY,unitY:b.y,z:b.z,id:b.id,attacker:a.id,effectiveDamage:growth.round(before-b.hp),weapon});
-   if(b.guard<=0){b.stun=b.id===0?2:1;b.state='stun';b.attack=null;this.emit('guardBreak',{id:b.id});}return true;
+   if(b.guard<=0){b.stun=b.id===0?2:1;b.state='stun';b.attack=null;this.emit('guardBreak',{id:b.id});}
+   this.updateHealthState(b);return true;
   }
-  const profile=monsters.types[b.monsterType];
   if(profile?.parry?.(b,a,m,front)){
    this.damageGuard(a,b,m);
    if(b.guardBreakTime>0)b.counterReady=false;
@@ -441,7 +453,8 @@ class Game{
   const originalDamage=Math.round(baseDamage*(profile?.damageTaken?.(b)??1)*(b.guardBreakTime>0?GUARD_RULES.vulnerability:1));
   const dmg=growth.round(originalDamage*(a.id===0?a.permanent?.attack??1:1)/(b.id===0?b.permanent?.defense??1:1));
   const hpBefore=b.hp;
-  b.hp=Math.max(this.mode==='training'&&b.id===1?1:0,b.hp-dmg);
+  const nextHP=Math.max(this.mode==='training'&&b.id===1?1:0,b.hp-dmg);
+  b.hp=profile?.limitHP?.(b,nextHP)??nextHP;
   b.hp=growth.round(b.hp);this.applyLifesteal(a,Math.max(0,hpBefore-b.hp));
   if(b.id===0||b.hp<=0&&this.fighters[0]?.autoAttack?.targetId===b.id)autoAttacks.cancel(this.fighters[0]);
   this.damageGuard(a,b,m);
@@ -463,6 +476,7 @@ class Game{
   if(a.id===0){this.stats.hits++;this.stats.damage+=dmg;this.stats.maxCombo=Math.max(this.stats.maxCombo,a.combo);}
   this.emit('hit',{x:b.x,y:atY,unitY:b.y,z:b.z,damage:dmg,effectiveDamage:growth.round(Math.max(0,hpBefore-b.hp)),id:b.id,attacker:a.id,weapon,kind:source?.kind,heavy:m.damage>12,combo:a.combo});
   if(b.monsterType&&!poise)b.t=0;
+  this.updateHealthState(b);
   if(b.hp<=0){
    if(a.id===0)this.progression?.defeat(this,b,profile);
    if(b.monsterType){

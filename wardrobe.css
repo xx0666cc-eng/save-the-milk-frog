@@ -7,3 +7,4 @@
 @media(max-width:600px){.skin-grid{max-height:none}}
 @media(max-width:600px){.skin-portrait .skin-image-frame{max-width:170px}.skin-choice .skin-image-frame{max-width:75px}}
 @media(max-height:720px) and (min-width:601px){.skin-portrait img{height:220px}.skin-portrait{min-height:280px}.skin-grid{max-height:230px}.wardrobe-panel{padding:20px}.wardrobe-header{margin-bottom:14px}.wardrobe-footer{margin-top:16px;padding-top:14px}.skin-entry{margin:10px 0 14px}}
+#wardrobe:not([aria-busy=true]) #useSkin:disabled{cursor:default}

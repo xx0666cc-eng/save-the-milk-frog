@@ -89,6 +89,7 @@ body.boss-battle #hp1{background:linear-gradient(90deg,#b47ef4,#f0a6f6)}
  font-display:block;
 }
 
+.energy-panel #energyHint.angel-hint{color:#ffe4a3;text-shadow:0 1px 7px #613918}
 #ultimateName{
  position:absolute;
  top:calc(100% + 10px);

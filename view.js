@@ -11,6 +11,7 @@ class ArenaView{
   this.presidentVfx=new PresidentVfx(this.scene);
   this.hemi=new T.HemisphereLight(0xfce9d0,0x233846,2.7);this.scene.add(this.hemi);const sun=new T.DirectionalLight(0xffd2a0,3.2);sun.position.set(-6,12,7);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-15;sun.shadow.camera.right=15;sun.shadow.camera.top=10;sun.shadow.camera.bottom=-10;sun.shadow.normalBias=.03;this.scene.add(sun);this.sun=sun;this.defaultFog=this.scene.fog;this.defaultBackground=this.scene.background;
   this.scene.add(sun.target);this.materials={};this.fx=[];this.projectileMeshes=[];this.mageVfx=new MageVfx(this.scene);this.lunarVfx=new LunarSakuraVfx(this.scene);this.shake=0;this.flash=0;const existing=new Set(this.scene.children);this.buildArena();this.legacyArena=new T.Group();for(const o of [...this.scene.children])if(!existing.has(o))this.legacyArena.add(o);this.scene.add(this.legacyArena);this.fighters=[new ReferenceFighterView(this.scene,0),new FighterView(this.scene,1)];this.resize();window.addEventListener('resize',()=>this.resize());
+  this.frogVfx=new FrogVfx(this.scene,this.fighters[0]);
  }
  prepareStage(skinId){return this.backdrop.prepare(skinId);}
  applyStage(stage){
@@ -89,11 +90,13 @@ class ArenaView{
  effect(e){
   this.growthView.effect(e);
   this.mageVfx.effect(e);this.lunarVfx.effect(e);this.presidentVfx.effect(e);
+  this.frogVfx.effect(e);
   if(e.type==='morrisImpact')this.shake=Math.max(this.shake,e.final?.22:.13);
   if(e.type==='capitalBlast')this.shake=Math.max(this.shake,.13);
   if(['swordSwing','swordUltimate','fanSwing'].includes(e.type))return;
   if(e.type==='hit'&&['sword','fan'].includes(e.weapon)){this.shake=e.heavy?.17:.085;return;}
   if(e.type==='hit'&&e.weapon==='magic'&&['orb','pillar'].includes(e.kind)){this.shake=e.heavy?.17:.085;return;}
+  if(e.type==='hit'&&(FrogVfx.soundHit(e)||FrogVfx.owns(e))){this.shake=e.heavy?.11:.05;return;}
   if(e.type==='hit'||e.type==='block'){
    const color=e.type==='block'?0x8bdaee:e.weapon==='magic'?0xd79cff:e.kind==='firedStamp'?0xff574a:0xffd182;this.shake=e.type==='block'?.035:e.heavy?.17:.085;
    for(let i=0;i<(e.type==='block'?10:22);i++){const a=Math.PI*2*i/22,r=3+Math.random()*5;const o=new T.Mesh(new T.BoxGeometry(.07,.07,.32),this.mat(color,true));o.position.set(e.x,e.y,(e.z||0)+.4);this.scene.add(o);this.fx.push({o,v:new T.Vector3(Math.cos(a)*r,Math.sin(a)*r,Math.random()*3),life:.21+Math.random()*.15,max:.36});}
@@ -113,8 +116,9 @@ class ArenaView{
   const targetId=fs[0].autoAttack?.targetId;
   this.monsterViews.render(game.monsters,this.camera,game.time,bounds,targetId,game.phase,game.projectiles);
   fs.forEach((f,i)=>this.fighters[i].update({...f,autoTargeted:f.id===targetId,hitStop:game.freeze>0,celebrate:game.phase==='result'&&game.winner===i},game.time||clock));
+  this.frogVfx.render(game,this.fighters[0],this.camera);
   for(let i=this.fx.length-1;i>=0;i--){const f=this.fx[i];f.life-=dt;if(f.life<=0){this.scene.remove(f.o);f.o.geometry.dispose();if(f.ring||f.beam)f.o.material.dispose();this.fx.splice(i,1);continue;}if(f.v){f.o.position.addScaledVector(f.v,dt);f.v.y-=18*dt;f.o.rotation.z+=dt*8;}if(f.ring)f.o.scale.setScalar(1+(1-f.life/f.max)*4);if(f.ring||f.beam)f.o.material.opacity=f.life/f.max;}
-  const genericProjectiles=game.projectiles.filter(p=>!CapitalVfx.owns(p)&&!SakuraRoninView.owns(p)&&!BellMasterView.owns(p)&&!SilencedView.owns(p));
+  const genericProjectiles=game.projectiles.filter(p=>!CapitalVfx.owns(p)&&!SakuraRoninView.owns(p)&&!BellMasterView.owns(p)&&!SilencedView.owns(p)&&!FrogVfx.owns(p));
   while(this.projectileMeshes.length<genericProjectiles.length){
    const g=new T.Group(),wave=new T.Group(),arrow=new T.Group(),blade=new T.Group(),orb=new T.Group();
    wave.add(new T.Mesh(new T.IcosahedronGeometry(.33,1),this.mat(0x83f6e9,true)),new T.Mesh(new T.TorusGeometry(.43,.035,6,24),this.mat(0xb1fff4,true)));

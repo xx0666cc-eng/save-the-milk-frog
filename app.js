@@ -17,6 +17,19 @@ function bellSound(kind){
   gain.gain.exponentialRampToValueAtTime(.0001,t+duration);osc.type='sine';osc.frequency.setValueAtTime(base*ratio,t);osc.connect(gain);osc.start(t);osc.stop(t+duration+.02);
  }
 }
+function frogSound(event){
+ if(muted||!audioCtx)return;
+ const transform=event.type==='angelTransform',duration=transform?.62:.24;
+ const notes=transform?[392,523.25,659.25,783.99]:event.empowered?[246,369,554]:[240,315,425];
+ for(const [i,note] of notes.entries()){
+  const t=audioCtx.currentTime+i*(transform?.04:.026),gain=audioCtx.createGain(),voice=audioCtx.createOscillator();
+  gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime((transform?.083:.095)/(i+1),t+.023);
+  gain.gain.exponentialRampToValueAtTime(.0001,t+duration);
+  voice.type=transform?'sine':'triangle';voice.frequency.setValueAtTime(note,t);
+  if(!transform)voice.frequency.exponentialRampToValueAtTime(note*.42,t+duration);
+  voice.connect(gain);gain.connect(audioCtx.destination);voice.start(t);voice.stop(t+duration+.02);
+ }
+}
 const {waveNames,ultimateNames}=CharacterInfo;
 const ultimateName=$('ultimateName');
 let ultimateAnimation=null;
@@ -52,7 +65,7 @@ function hasCampaignLevel(level){
 const campaignLevels=Object.fromEntries(Object.entries(Encounters.levels).filter(([level])=>hasCampaignLevel(level)));
 const save=new RiftSave.Store({
  storage:()=>window.localStorage,levels:campaignLevels,
- characters:FIGHTER_SKINS.map(skin=>skin.id),defaultCharacter:'original'
+ characters:MenuCharacters.order,defaultCharacter:'original'
 });
 game.rewardSink=drop=>save.claimLoot(drop);
 GrowthUI.init({game,save,issueMessage:saveMessage,
@@ -61,8 +74,12 @@ GrowthUI.init({game,save,issueMessage:saveMessage,
  accountChanged:()=>{const id=game.playerCharacter||save.data.selectedCharacter;game.setPlayerProgression(id,save.data.account.upgrades[id]);}
 });
 let menuLoading=false,skinReady=false,menuNotice='';
-MainMenu.init({save,select:selectMenuCharacter});
+MainMenu.init({save,select:selectMenuCharacter,unlockCondition:characterUnlockCondition});
 const chapters=ChapterSelect.create({entries:chapterEntries,choose:startChapter,notice:()=>save.issue?saveMessage(save.issue):''});
+function characterUnlockCondition(id){
+ const level=save.characterUnlockLevel(id);
+ return level?'通关第 '+level+' 关「'+campaignLevels[level].name+'」后解锁':'未解锁';
+}
 function saveMessage(issue){
  return {
   corrupt:'存档已损坏，可在选择章节中从第一关重建。',
@@ -92,10 +109,10 @@ function showSaveIssue(issue){
  else toast(message);
 }
 function canAdvance(level){return save.data.unlockedLevels.includes(level);}
-function presentVictory(level,restored=false){
+function presentVictory(level,restored=false,reward=null){
  $('announcement').textContent='';
  $('victoryTitle').textContent=Encounters.levels[level].name+'通关';
- $('victoryChapter').textContent='第 '+level+' 关 · 拯救奶村';
+ $('victoryChapter').textContent='第 '+level+' 关 · 拯救奶村'+(reward?' · 已解锁 '+FighterSkins.find(reward).name:'');
  ResultUI.stats(['victoryCombo','victoryDamage'],game.stats,restored);
  const nextAvailable=canAdvance(level+1);
  $('victoryNext').disabled=!nextAvailable;
@@ -109,16 +126,26 @@ function recordCheckpoint(regionId){
  showSaveIssue(issue);
 }
 function recordVictory(level){
- const issue=save.data.clearedLevels.includes(level)?null:save.clearLevel(level);
- presentVictory(level);
+ const cleared=save.data.clearedLevels.includes(level);
+ const issue=cleared?null:save.clearLevel(level);
+ const reward=!cleared&&!issue?MenuCharacters.order.find(id=>save.characterUnlockLevel(id)===level):null;
+ presentVictory(level,false,reward);
  showSaveIssue(issue);
 }
-function weaponUI(weapon='fist'){
- const defs=CharacterInfo.weapons;
- const unlimited=game.fighters.length>0&&game.unlimited(game.fighters[0]),helpText=text=>unlimited?text.replace(/(?:20|100) 笑声值/g,'0 笑声值').replace(/冷却 3 秒/g,'冷却 0 秒'):text;
- const d=defs[weapon]||defs.fist;$('lightKeyName').textContent=d.light;$('heavyKeyName').textContent=d.heavy;$('waveKeyName').textContent=d.wave;$('ultimateKeyName').textContent=d.ultimate;
+function battleKeyLabels(d){
+ $('lightKeyName').textContent=d.light;$('heavyKeyName').textContent=d.heavy;
+ $('waveKeyName').textContent=d.wave;$('ultimateKeyName').textContent=d.ultimate;
  for(const [i,key] of ['light','wave','super'].entries())document.querySelector('#touchControls [data-action="'+key+'"]').textContent=d.touch[i];
+}
+function weaponUI(weapon='fist'){
+ const unlimited=game.fighters.length>0&&game.unlimited(game.fighters[0]),helpText=text=>unlimited?text.replace(/(?:20|100) 笑声值/g,'0 笑声值').replace(/冷却 3 秒/g,'冷却 0 秒'):text;
+ const fist=weapon==='fist',d=CharacterInfo.weapons[weapon]||CharacterInfo.weapons.fist;
+ battleKeyLabels(game.fighters[0]?.angelForm?CharacterInfo.angel:d);
  $('helpLightText').textContent=d.lightHelp;$('helpHeavyText').textContent=helpText(d.heavyHelp);$('helpUltimateText').textContent=helpText(d.ultimateHelp);$('comboAdvice').textContent=d.advice;$('weaponHelp').textContent=d.tip;$('menuNote').textContent=d.note;
+ $('airComboAdvice').textContent=fist?'挑空后，趁目标仍在身前用扇形声波追击。':'把对手打离地面，再用气流追击。';
+ $('burstComboTitle').textContent=fist?'圣辉连招':'满气爆发';
+ $('burstComboKeys').querySelectorAll('kbd').forEach((key,index)=>{key.textContent=(fist?'IJU':'JJI')[index];});
+ $('burstComboAdvice').textContent=fist?'变身后先用圣羽连射，再用圣音震鸣控制身前的敌人。':'普攻后接必杀；游蛙需保持与目标同一纵深。';
 }
 function begin(mode,level=1,afterRegion=null){
  clearUltimateName();initAudio();keys.clear();game.start(mode,level,Number($('difficulty').value),undefined,afterRegion);
@@ -253,7 +280,7 @@ const actions={KeyJ:'light',KeyK:'heavy',KeyU:'wave',KeyI:'super',Space:'jump',S
 window.addEventListener('keydown',e=>{if(GrowthUI.isOpen()){if(e.code==='Escape'){e.preventDefault();GrowthUI.close();}return;}if(newGameConfirm.open||chapters.isOpen())return;if(Wardrobe.isOpen()){if(e.code==='Escape'){e.preventDefault();Wardrobe.close();}return;}if(e.code==='Escape'){e.preventDefault();if(!$('help').classList.contains('hidden'))closeHelp();else if(game.phase==='paused')resume();else pause();return;}if(!game.acceptsInput)return;if(['KeyQ','KeyR'].includes(e.code)&&game.fighters[0].weapon!=='fan')return;if(['Space','KeyW','KeyA','KeyS','KeyD','KeyF','ArrowUp','ArrowDown','ArrowLeft','ArrowRight',...Object.keys(actions)].includes(e.code))e.preventDefault();keys.add(e.code);if(!e.repeat&&actions[e.code])game.queue(0,actions[e.code]);});
 window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden){keys.clear();pause();}});
 for(const b of document.querySelectorAll('#touchControls button')){b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);if(b.dataset.action)game.queue(0,b.dataset.action);else keys.add('touch-'+b.dataset.hold);};b.onpointerup=b.onpointercancel=b.onlostpointercapture=()=>{if(b.dataset.hold)keys.delete('touch-'+b.dataset.hold);};}
-function events(){for(const e of game.events){GrowthUI.effect(e);if(e.type==='lootCollected')toast(e.kind==='coins'?'+'+e.amount+' 奶币 · 已永久保存':'获得 '+e.name+' ×'+e.quantity+' · 已保存');if(e.type==='lootSaveError')toast(saveMessage(e.issue)+' 奶币仍留在地面，保存成功后才计入。');view.effect(e);if(e.type==='bellImpact')bellSound(e.kind);if(e.type==='capitalBlast')sound('hit');if(e.type==='morrisImpact')sound(e.final?'super':'hit');if(['attack','hit','block','super'].includes(e.type)&&!(e.type==='attack'&&e.weapon==='bow'))sound(e.weapon==='sword'&&e.type==='attack'?'sword':e.type);if(e.type==='arrow')sound('arrow');if(e.type==='spellCast')sound('super');if(e.type==='spellBurst')sound('hit');if(e.type==='regionStart')say('第 '+e.wave+' 波<small>共 '+e.totalWaves+' 波</small>',1.6);if(e.type==='bossApproach')toast(Monsters.types[e.typeId].name+'正在靠近');if(e.type==='bossEnter'){const name=Monsters.types[e.typeId].name;if($('toast').textContent===name+'正在靠近')$('toast').textContent='';say(name+(e.typeId===CapitalEnemies.bossType?'<small>关卡首领登场</small>':'<small>小首领登场</small>'),1.45);sound('super');}if(e.type==='bossDefeated')toast(Monsters.types[e.typeId].name+'已击败');if(e.type==='regionClear'&&!e.complete)recordCheckpoint(e.regionId);if(e.type==='campaignVictory')recordVictory(e.level);if(e.type==='fight')say('开 战',.65);if(e.type==='cooldown')toast((e.name==='wave'?waveNames[game.playerWeapon]:ultimateNames[game.playerWeapon])+'还需 '+Math.ceil(e.remaining)+' 秒');if(e.type==='energyLow')toast('笑声值不足，命中或防守可以积累笑声值');if(e.type==='guardBreak')toast(e.enemy?'对手破防 3 秒 · 承伤提高 30%':e.id?'对手破防！抓住机会':'架势耗尽 · 硬直 2 秒');if(e.type==='super')showUltimateName(e);if(e.type==='ko')say('K.O.',1.2);if(e.type==='result'){show('result',true);const win=e.winner===0;$('resultTitle').textContent=win?(game.level===3?'挑战完成':'胜 利'):'再来一局';$('resultLabel').textContent=`${view.backdrop.name} · 第 ${game.level} 战`;$('resultCopy').textContent=win?(game.level<3?'下一位对手会更主动。保持节奏，继续前进。':'三位对手全部击败。试试更高的电脑强度。'):'留意出招后的破绽。防住攻击，再靠近反击。';ResultUI.stats(['statCombo','statDamage'],game.stats);$('next').textContent=win&&game.level<3?'下一战 →':'重新挑战';if(game.mode==='skirmish'){$('resultTitle').textContent=win?'小怪已清除':'再来一局';$('resultLabel').textContent=view.backdrop.name+' · 小怪试战';$('resultCopy').textContent=win?'场上的小怪已全部击败。':'留意小怪攻击前的蓄力，换个方向拉开距离。';$('next').textContent='再战一次';}if(game.mode==='campaign'){$('resultTitle').textContent='再来一局';$('resultLabel').textContent=`第 ${game.level} 关 · ${Encounters.levels[game.level].name}`;$('resultCopy').textContent='走位避开包围，留意两侧增援。';$('next').textContent='重新挑战';}$('next').focus();}}game.events=[];}
+function events(){for(const e of game.events){GrowthUI.effect(e);if(e.type==='lootCollected')toast(e.kind==='coins'?'+'+e.amount+' 奶币 · 已永久保存':'获得 '+e.name+' ×'+e.quantity+' · 已保存');if(e.type==='lootSaveError')toast(saveMessage(e.issue)+' 奶币仍留在地面，保存成功后才计入。');view.effect(e);if(e.type==='soundWave'||e.type==='angelTransform')frogSound(e);if(e.type==='bellImpact')bellSound(e.kind);if(e.type==='capitalBlast')sound('hit');if(e.type==='morrisImpact')sound(e.final?'super':'hit');if(['attack','hit','block','super'].includes(e.type)&&!(e.type==='attack'&&e.weapon==='bow'))sound(e.weapon==='sword'&&e.type==='attack'?'sword':e.type);if(e.type==='arrow')sound('arrow');if(e.type==='spellCast')sound('super');if(e.type==='spellBurst')sound('hit');if(e.type==='regionStart')say('第 '+e.wave+' 波<small>共 '+e.totalWaves+' 波</small>',1.6);if(e.type==='bossApproach')toast(Monsters.types[e.typeId].name+'正在靠近');if(e.type==='bossEnter'){const name=Monsters.types[e.typeId].name;if($('toast').textContent===name+'正在靠近')$('toast').textContent='';say(name+(e.typeId===CapitalEnemies.bossType?'<small>关卡首领登场</small>':'<small>小首领登场</small>'),1.45);sound('super');}if(e.type==='bossDefeated')toast(Monsters.types[e.typeId].name+'已击败');if(e.type==='regionClear'&&!e.complete)recordCheckpoint(e.regionId);if(e.type==='campaignVictory')recordVictory(e.level);if(e.type==='fight')say('开 战',.65);if(e.type==='cooldown')toast((e.name==='wave'?(game.fighters[0]?.angelForm?CharacterInfo.angel.wave:waveNames[game.playerWeapon]):ultimateNames[game.playerWeapon])+'还需 '+Math.ceil(e.remaining)+' 秒');if(e.type==='energyLow')toast('笑声值不足，命中或防守可以积累笑声值');if(e.type==='guardBreak')toast(e.enemy?'对手破防 3 秒 · 承伤提高 30%':e.id?'对手破防！抓住机会':'架势耗尽 · 硬直 2 秒');if(e.type==='super')showUltimateName(e);if(e.type==='ko')say('K.O.',1.2);if(e.type==='result'){show('result',true);const win=e.winner===0;$('resultTitle').textContent=win?(game.level===3?'挑战完成':'胜 利'):'再来一局';$('resultLabel').textContent=`${view.backdrop.name} · 第 ${game.level} 战`;$('resultCopy').textContent=win?(game.level<3?'下一位对手会更主动。保持节奏，继续前进。':'三位对手全部击败。试试更高的电脑强度。'):'留意出招后的破绽。防住攻击，再靠近反击。';ResultUI.stats(['statCombo','statDamage'],game.stats);$('next').textContent=win&&game.level<3?'下一战 →':'重新挑战';if(game.mode==='skirmish'){$('resultTitle').textContent=win?'小怪已清除':'再来一局';$('resultLabel').textContent=view.backdrop.name+' · 小怪试战';$('resultCopy').textContent=win?'场上的小怪已全部击败。':'留意小怪攻击前的蓄力，换个方向拉开距离。';$('next').textContent='再战一次';}if(game.mode==='campaign'){$('resultTitle').textContent='再来一局';$('resultLabel').textContent=`第 ${game.level} 关 · ${Encounters.levels[game.level].name}`;$('resultCopy').textContent='走位避开包围，留意两侧增援。';$('next').textContent='重新挑战';}$('next').focus();}}game.events=[];}
 function updatePillarHint(player){
  if(player.weapon!=='magic')return;
  const pillar=game.groundSpells.find(spell=>spell.owner===player.id&&spell.kind==='pillar'&&!spell.fired);
@@ -261,6 +288,17 @@ function updatePillarHint(player){
  const button=document.querySelector('#touchControls [data-action="super"]');
  const label=pillar?.guiding?'落柱':'光柱';
  if(button.textContent!==label)button.textContent=label;
+}
+function updateFrogHint(player,readiness){
+ const form=player.angelForm,hint=$('energyHint');
+ hint.classList.toggle('angel-hint',!!form);
+ if(player.weapon!=='fist')return;
+ const labels=form?CharacterInfo.angel:CharacterInfo.weapons.fist;
+ if($('lightKeyName').textContent!==labels.light)battleKeyLabels(labels);
+ if(form){
+  const time=Math.max(0,form.endsAt-game.time).toFixed(1);
+  hint.textContent='圣辉 '+time+' 秒 · U '+labels.wave+' '+readiness('wave',Combat.ANGEL_MOVES.wave.cost);
+ }
 }
 function updateCampaignHud(){
  syncVictoryControls();
@@ -309,6 +347,7 @@ function hud(){
  if(game.mode==='training')$('energyHint').textContent='自由练习 · 0 笑声值消耗 · 0 冷却 · 无限释放';
  if(exploring)$('energyHint').textContent='自由探索 · 0 笑声值消耗 · 0 冷却';
  updatePillarHint(p);
+ updateFrogHint(p,readiness);
  $('timer').textContent=game.mode==='skirmish'?game.monsters.filter(m=>m.hp>0).length:game.mode==='training'?'∞':Math.ceil(game.remaining);
  if(game.mode==='campaign')updateCampaignHud();
  show('combo',p.combo>=2&&p.comboTTL>0);$('combo').querySelector('b').textContent=p.combo;$('combo').querySelector('small').textContent=p.comboDamage+' 点伤害';
@@ -320,7 +359,8 @@ function applySkinStage(){
  document.querySelector('.menu-right b').textContent=view.backdrop.name;
  document.querySelector('.menu-right>span').textContent=view.backdrop.label;
 }
-Wardrobe.init({initial:FighterSkins.find(save.data.selectedCharacter),apply:async skin=>{
+Wardrobe.init({initial:FighterSkins.find(save.data.selectedCharacter),
+ unlocked:id=>save.data.unlockedCharacters.includes(id),unlockCondition:characterUnlockCondition,apply:async skin=>{
  const stage=await view.prepareStage(skin.id);
  await view.fighters[0].setSkin(skin);
  skinStage=stage;

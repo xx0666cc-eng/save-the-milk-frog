@@ -8,7 +8,10 @@ const config=Object.freeze({
 });
 const normalNames=['jab','cross','finisher'];
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-function nextName(f){return f.state==='attack'&&f.attack==='jab'?'cross':f.state==='attack'&&f.attack==='cross'?'finisher':'jab';}
+function nextName(f){
+ if(f.state!=='attack'||f.frogMove?.shotCount)return 'jab';
+ return f.attack==='jab'?'cross':f.attack==='cross'?'finisher':'jab';
+}
 function limits(game,f){
  const reference={id:0,weapon:'sword'};
  const baseline=Math.max(...normalNames.map(name=>game.move(reference,name).reach))*bodyScale(reference);

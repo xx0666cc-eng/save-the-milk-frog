@@ -20,7 +20,7 @@ const MELEE_DEPTH={normal:.8,super:1,bossBonus:.189};
 const PROJECTILE_DEPTH={
  tolerance:.24,
  targetHalfDepth:{fighter:.35,monster:.44,boss:.61},
- halfDepth:{wave:.37,arrow:.31,orb:.40,moonBlade:.36,moonFan:.46,blade:.42,goldStar:.32,firedStamp:.60}
+ halfDepth:{wave:.37,arrow:.31,orb:.40,moonBlade:.36,moonFan:.46,blade:.42,goldStar:.32,firedStamp:.60,holyFeather:.24}
 };
 const PILLAR_TRAVEL_SPEED=6;
 const PILLAR_DROP_TIME=.18;
@@ -52,6 +52,22 @@ const MOVES={
  wave:{duration:.52,hit:.20,active:0,reach:0,damage:12,cost:20,cooldown:3},
  super:{duration:1.05,hit:.20,active:.08,reach:5.6,damage:10,cost:100}
 };
+// The original frog's player kit is separate from the arcade CPU's fists.
+const FROG_MOVES={
+ wave:{...MOVES.wave,kind:'laughWave',duration:.78,hit:.23,damage:14,stun:.72,push:1.2,
+  radius:6,halfAngle:Math.PI/4,travelTime:.28,cone:true,daze:true},
+ super:{...MOVES.super,kind:'angelForm',duration:.75,hit:.30,active:0,reach:0,damage:0,formDuration:10}
+};
+const ANGEL_MOVES={
+ jab:{...MOVES.jab,kind:'holyFeather',duration:.58,hit:.13,active:0,step:0,damage:8,stun:.30,push:.32,
+  projectile:true,shotCount:3,shotInterval:.10,speed:20,life:.43,muzzleX:1.47,muzzleY:2.02,splash:{radius:1.20,damage:4}},
+ wave:{...FROG_MOVES.wave,kind:'holyWave',damage:25,stun:1.15,push:1.6,radius:8,
+  halfAngle:52*Math.PI/180,travelTime:.34}
+};
+function soundWaveOrigin(f){
+ const scale=bodyScale(f);
+ return {x:f.x+f.face*.53*scale,y:f.y+2.18*scale,z:f.z,dir:f.face,scale};
+}
 const WEAPON_MOVES={
  president:{
   jab:{...MOVES.jab,damage:4,duration:.27,hit:.10,active:0,step:0,projectile:true,kind:'goldStar',speed:22,life:.85},
@@ -92,8 +108,15 @@ const WEAPON_MOVES={
   super:{...MOVES.super,projectile:true,speed:24,life:.7}
  }
 };
-function moveFor(f,name=f.attack){return WEAPON_MOVES[f.weapon]?.[name]||MOVES[name];}
-function attackLinkTime(f,name=f.attack){const m=moveFor(f,name);return m.hit+(m.projectile&&name!=='super'?.10:.07);}
+function moveFor(f,name=f.attack){
+ if(f.id===0&&f.weapon==='fist')return (f.angelForm&&ANGEL_MOVES[name])||FROG_MOVES[name]||MOVES[name];
+ return WEAPON_MOVES[f.weapon]?.[name]||MOVES[name];
+}
+function activeMoveFor(f){return f.frogMove||moveFor(f);}
+function attackLinkTime(f,name=f.attack){
+ const m=name===f.attack?activeMoveFor(f):moveFor(f,name);
+ return m.hit+(m.shotCount?(m.shotCount-1)*m.shotInterval:0)+(m.projectile&&name!=='super'?.10:.07);
+}
 function meleeBounds(f,enemy,reach,lane){
  return {maxX:reach*bodyScale(f)+(enemy.isBoss?.42*bodyScale(enemy):0),
   depth:lane*bodyScale(f)+(enemy.isBoss?MELEE_DEPTH.bossBonus*bodyScale(enemy):0)};
@@ -226,11 +249,15 @@ class Game{
  finish(winner){
   this.clearEnemyStates();
   autoAttacks.cancel(this.fighters[0]);
-  for(const f of this.fighters)f.superCasts=[];
+  this.clearPlayerCasts();
   this.projectiles=[];this.phase='ko';this.koTime=1.3;this.winner=winner;this.emit('ko',{winner});
   this.progression?.resetTemporary();
  }
  clearEnemyStates(){for(const enemy of this.monsters)monsters.types[enemy.monsterType]?.endBattle?.(enemy);}
+ clearPlayerCasts(){
+  const f=this.fighters[0];
+  f.superCasts=[];f.angelForm=null;f.frogMove=null;
+ }
  updateHealthState(enemy){
   if(!monsters.types[enemy.monsterType]?.afterHurt?.(enemy,this))return;
   if(this.fighters[0]?.autoAttack?.targetId===enemy.id)autoAttacks.cancel(this.fighters[0]);
@@ -259,7 +286,7 @@ class Game{
   autoAttacks.cancel(f);
   const fraction=f.hp/f.maxHP;
   f.maxHP=growth.round(PLAYER_STATS[weapon].hp*(f.permanent?.hp??1));f.hp=f.hp>0?Math.max(1,growth.round(f.maxHP*fraction)):0;
-  f.weapon=weapon;f.cooldowns={wave:0,super:0};f.buffer=null;f.combo=f.comboDamage=f.comboTTL=0;f.walkVX=f.walkVZ=0;f.superCasts=[];
+  f.weapon=weapon;f.cooldowns={wave:0,super:0};f.buffer=null;f.combo=f.comboDamage=f.comboTTL=0;f.walkVX=f.walkVZ=0;this.clearPlayerCasts();
   if(f.state==='attack'){f.state=f.y>0?'jump':'idle';f.attack=null;f.t=0;}f.spawned=false;f.hit=false;
   this.projectiles=this.projectiles.filter(p=>p.owner!==0);
   this.groundSpells=this.groundSpells.filter(p=>p.owner!==0);
@@ -277,6 +304,7 @@ class Game{
   f.energy-=m.cost||0;
   if(name in f.cooldowns)f.cooldowns[name]=m.cooldown||0;
   f.attack=name;f.state='attack';f.t=0;f.hit=false;f.spawned=false;f.swingShown=false;f.strikes=0;
+  if(f.id===0&&f.weapon==='fist')f.frogMove=m;
   f.castId=++this.castSerial;
   if(f.id===0)autoAttacks.launched(f,name);
   if(f.id!==0)f.face=Math.sign(this.target(f)?.x-f.x)||f.face;
@@ -297,6 +325,7 @@ class Game{
   const scale=bodyScale(f),origin=shotOffsets(f,m),offsetX=origin.x,offsetY=origin.y;
   const shot={kind:arrow?'arrow':m.kind||'wave',variant:name??f.bossMove,weapon:f.weapon,x:f.x+f.face*offsetX,y:f.y+offsetY,z:f.z,dir:f.face,owner:f.id,life:m.life||1.6,speed:m.speed||12,damage:m.damage||12,stun:m.stun||.45,push:m.push||2.1,lift:m.lift||0,slow:m.slow||0,boomerang:!!m.boomerang,range:m.range||6,traveled:0,returning:false,hitTargets:[[],[]],piercing:!!m.piercing,power};
   shot.castId=m.castId??f.castId;
+  if(m.splash)shot.splash=m.splash;
   if(m.aimPoint){
    const dx=m.aimPoint.x-shot.x,dz=m.aimPoint.z-shot.z,distance=Math.hypot(dx,dz)||1;
    Object.assign(shot,{headingX:dx/distance,headingZ:dz/distance,launchY:shot.y,cruiseY:m.aimPoint.y,
@@ -320,7 +349,12 @@ class Game{
  }
  updateSuper(f,move,cast,dt){
   const m={...move,attackName:'super',castId:cast.castId};
-  if(m.groundSpell){
+  if(m.kind==='angelForm'){
+   if(cast.spawned||cast.t+1e-9<m.hit)return;
+   cast.spawned=true;
+   f.angelForm={startedAt:this.time,endsAt:this.time+m.formDuration};
+   this.emit('angelTransform',{x:f.x,y:f.y,z:f.z,id:f.id});
+  }else if(m.groundSpell){
    if(cast.spawned)return;
    const guiding=!m.moonField&&f.id===0,anchor=m.moonField||guiding?f:this.target(f)||f;
    cast.spawned=true;
@@ -356,6 +390,38 @@ class Game{
    if(this.phase==='ko')return;
   }
  }
+ launchSoundWave(f,move,dt){
+  const origin=soundWaveOrigin(f);
+  this.groundSpells.push({...origin,kind:'soundWave',owner:f.id,age:-dt,delay:0,
+   radius:move.radius*origin.scale,halfAngle:move.halfAngle,duration:move.travelTime,
+   move:{...move,attackName:'wave',castId:f.castId},hitTargets:[]});
+  this.emit('soundWave',{empowered:move.kind==='holyWave'});
+ }
+ updateSoundWave(spell,caster,dt){
+  if(spell.age>spell.duration+dt+1e-9)return;
+  const front=spell.radius*Math.min(1,spell.age/spell.duration);
+  const rear=Math.max(0,spell.radius*(spell.age-dt)/spell.duration-.60);
+  const slope=Math.tan(spell.halfAngle);
+  for(const target of this.opponents(caster)){
+   if(spell.hitTargets.includes(target.id))continue;
+   const forward=(target.x-spell.x)*spell.dir,depth=Math.abs(target.z-spell.z);
+   const distance=Math.hypot(forward,depth);
+   if(forward<0||depth>forward*slope||distance<rear||distance>front)continue;
+   if(this.hurt(caster,target,spell.move,spell.y,true,{x:spell.x,dir:spell.dir,weapon:'fist',kind:spell.move.kind}))
+    spell.hitTargets.push(target.id);
+   if(this.phase==='ko')return;
+  }
+ }
+ burstFeather(caster,ball,impact){
+  this.emit('featherBurst',{x:impact.x,y:ball.y,z:impact.z,dir:ball.dir});
+  if(this.phase==='ko')return;
+  const move={...ball,damage:ball.splash.damage};
+  for(const target of this.opponents(caster)){
+   if(target===impact||Math.hypot(target.x-impact.x,target.z-impact.z)>ball.splash.radius)continue;
+   this.hurt(caster,target,move,ball.y,true,{x:impact.x-ball.dir,dir:ball.dir,weapon:'fist',kind:ball.kind});
+   if(this.phase==='ko')return;
+  }
+ }
  action(f,action){
   if(f.id===0&&action==='light'&&f.autoAttack?.phase==='approach'&&!f.autoAttack.ready)return false;
   if(action==='super'&&f.id===0&&f.weapon==='magic'){
@@ -370,7 +436,8 @@ class Game{
   }
   if(f.stun>0||f.hp<=0||f.state==='dash')return false;
   if(f.state==='attack'){
-   const move=moveFor(f);const ranged=move.projectile&&f.attack!=='super',ready=ranged?f.spawned:f.hit;if(!ready||f.t<attackLinkTime(f))return false;
+   const move=activeMoveFor(f);const ranged=move.projectile&&f.attack!=='super',ready=ranged?f.spawned:f.hit;if(!ready||f.t<attackLinkTime(f))return false;
+   if(action==='light'&&move.shotCount)return false;
    if(action==='light'&&f.attack==='jab')return this.launch(f,'cross');
    if(action==='light'&&f.attack==='cross')return this.launch(f,'finisher');
    if(action==='heavy'&&['jab','cross','finisher'].includes(f.attack))return this.launch(f,'heavy');
@@ -461,6 +528,7 @@ class Game{
   const poise=profile?.poise?.(b)&&!(b.guardBreakTime>0);
   if(!poise){
    b.stun=Math.max(b.guardBreakTime||0,m.stun||.46);b.state='stun';b.attack=null;b.buffer=null;b.vx=dir*(m.push||2.2)*3;
+   if(m.daze)b.dazedUntil=this.time+m.stun;
    if(b.id===0&&b.superCasts.length)b.walkVX=b.walkVZ=0;
    if(m.pull){
     const dx=a.x-b.x,dz=a.z-b.z,gap=Math.hypot(dx,dz);
@@ -545,13 +613,14 @@ class Game{
   this.time+=dt;
   if(this.phase==='intro'){this.intro-=dt;if(this.intro<=0){this.phase='fight';this.emit('fight');}return;}
   if(this.phase==='ko'){this.koTime-=dt;for(const enemy of this.monsters)if(enemy.hp<=0)enemy.t+=dt;for(const s of this.groundSpells){if(s.kind==='moonField')s.age=Math.max(s.age,s.delay+s.duration);s.age+=dt;}this.groundSpells=this.groundSpells.filter(s=>s.fired&&s.age<s.delay+(s.kind==='moonField'?s.duration+.4:.7));for(const f of this.fighters){if(f.hp<=0){f.t+=dt;f.y=Math.max(0,f.y+f.vy*dt);f.vy-=22*dt;}}if(this.koTime<=0){this.phase='result';this.emit('result',{winner:this.winner});}return;}
-  if(this.mode==='arcade'){this.remaining-=dt;if(this.remaining<=0){this.remaining=0;this.winner=this.fighters[0].hp/this.fighters[0].maxHP>=this.fighters[1].hp/this.fighters[1].maxHP?0:1;this.phase='result';this.progression?.resetTemporary();this.projectiles=[];this.groundSpells=[];for(const f of this.fighters)f.superCasts=[];this.emit('result',{winner:this.winner});return;}}
+  if(this.mode==='arcade'){this.remaining-=dt;if(this.remaining<=0){this.remaining=0;this.winner=this.fighters[0].hp/this.fighters[0].maxHP>=this.fighters[1].hp/this.fighters[1].maxHP?0:1;this.phase='result';this.progression?.resetTemporary();this.projectiles=[];this.groundSpells=[];this.clearPlayerCasts();this.emit('result',{winner:this.winner});return;}}
   if(this.encounter&&this.phase==='fight')this.encounter.tick(this,dt);
   // Apply horizontal input before buffered actions can start this frame.
   if(input.move)this.fighters[0].face=Math.sign(input.move);
   this.fighters[0].intent=autoAttacks.steer(this,this.fighters[0],input,dt);
   if(this.fighters[1])this.ai(this.fighters[1],dt);
   for(const f of this.fighters){
+   if(f.angelForm&&this.time+1e-9>=f.angelForm.endsAt)f.angelForm=null;
    const unlimited=this.unlimited(f);f.t+=dt;f.inv=Math.max(0,f.inv-dt);f.dashCD=unlimited?0:Math.max(0,f.dashCD-dt);f.stun=Math.max(0,f.stun-dt);f.comboTTL=Math.max(0,f.comboTTL-dt);
    f.slow=Math.max(0,f.slow-dt);for(const key of ['wave','super'])f.cooldowns[key]=unlimited?0:Math.max(0,f.cooldowns[key]-dt);
    if(f.comboTTL===0){f.combo=0;f.comboDamage=0;}
@@ -577,8 +646,16 @@ class Game{
     f.superCasts=f.superCasts.filter(cast=>cast.t<cast.move.duration);
    }
    if(f.state==='attack'){
-    const m=moveFor(f);if(f.t<m.hit+.05)move=f.face*(m.step||0);
-    if(!m.groundSpell&&f.attack!=='super'&&(f.attack==='wave'||m.projectile)&&f.t>=m.hit&&!f.spawned){f.spawned=true;this.shoot(f,m);}
+    const m=activeMoveFor(f);if(f.t<m.hit+.05)move=f.face*(m.step||0);
+    if(m.shotCount){
+     if(!f.spawned&&f.t+1e-9>=m.hit+f.strikes*m.shotInterval){
+      this.shoot(f,m);f.spawned=++f.strikes===m.shotCount;
+     }
+    }else if(!m.groundSpell&&f.attack!=='super'&&(f.attack==='wave'||m.projectile)&&f.t>=m.hit&&!f.spawned){
+     f.spawned=true;
+     if(m.cone)this.launchSoundWave(f,m,dt);
+     else this.shoot(f,m);
+    }
     const scale=bodyScale(f);
     if(f.weapon==='sword'&&f.attack!=='super'&&f.t>=m.hit&&!f.swingShown){f.swingShown=true;this.emit('swordSwing',{id:f.id,x:f.x,y:f.y+1.35*scale,z:f.z,face:f.face,name:f.attack,scale});}
     if(f.weapon==='fan'&&f.attack==='heavy'&&f.t>=m.hit&&!f.swingShown){f.swingShown=true;this.emit('fanSwing',{id:f.id,x:f.x,y:f.y+1.6*scale,z:f.z,face:f.face,scale});}
@@ -586,7 +663,7 @@ class Game{
      if(f.id!==0)this.updateSuper(f,m,f,dt);
     }else if(!m.groundSpell&&!f.hit&&!m.projectile&&f.attack!=='wave'&&f.t>=m.hit&&f.t<=m.hit+m.active)this.strike(f,m,m.reach,MELEE_DEPTH.normal,f.y+1.25);
     if(this.phase==='ko')return;
-    if(f.t>=m.duration){f.state='idle';f.attack=null;f.spawned=false;f.t=0;}
+    if(f.t>=m.duration){f.state='idle';f.attack=null;f.frogMove=null;f.spawned=false;f.t=0;}
    }else if(f.state==='dash'){move=f.dashDir*15;depth=(f.dashZ||0)*15;if(f.id!==0&&f.dashDir)f.face=Math.sign(f.dashDir);if(f.t>.18){f.state='idle';f.t=0;}}
    else if(f.stun>0){f.state='stun';}
    else{
@@ -671,6 +748,7 @@ class Game{
    for(const {enemy} of candidates){
     if(!this.hurt(a,enemy,ball,ball.y,true,{x:enemy.x-ball.dir,dir:ball.dir,weapon:ball.weapon,kind:ball.kind}))continue;
     hits.push(enemy.id);
+    if(ball.splash)this.burstFeather(a,ball,enemy);
     if(this.phase==='ko')return;
     if(!ball.piercing&&!ball.boomerang){ball.life=0;break;}
    }
@@ -679,6 +757,11 @@ class Game{
   this.projectiles=this.projectiles.filter(b=>b.life>0&&Math.abs(b.x)<ARENA.halfWidth+ARENA.projectileMargin);
   for(const spell of this.groundSpells){
    spell.age+=dt;const caster=this.fighters[spell.owner];
+   if(spell.kind==='soundWave'){
+    this.updateSoundWave(spell,caster,dt);
+    if(this.phase==='ko')return;
+    continue;
+   }
    if(spell.kind==='rally'){
     this.updateRally(spell,caster);
     if(this.phase==='ko')return;
@@ -709,11 +792,11 @@ class Game{
     if(this.phase==='ko')return;
    }
   }
-  this.groundSpells=this.groundSpells.filter(s=>s.guiding||s.age<s.delay+(['moonField','rally'].includes(s.kind)?s.duration+.4:.7));
+  this.groundSpells=this.groundSpells.filter(s=>s.guiding||s.age<s.delay+(['moonField','rally','soundWave'].includes(s.kind)?s.duration+.4:.7));
   autoAttacks.settle(this,this.fighters[0]);
   this.progression?.tick(this,dt);
   if(this.mode==='training'&&duelist.hp<30&&duelist.stun<=0){const healed=growth.round(duelist.maxHP-duelist.hp);duelist.hp=duelist.maxHP;this.emit('recover',{id:duelist.id,healed,x:duelist.x,y:duelist.y,z:duelist.z});}
  }
 }
-const api={Game,ARENA,MOVES,WEAPON_MOVES,PLAYER_STATS,ENERGY_RULES,GUARD_RULES,moveFor,attackLinkTime};if(typeof module!=='undefined')module.exports=api;else root.Combat=api;
+const api={Game,ARENA,MOVES,WEAPON_MOVES,FROG_MOVES,ANGEL_MOVES,PLAYER_STATS,ENERGY_RULES,GUARD_RULES,moveFor,activeMoveFor,attackLinkTime,soundWaveOrigin};if(typeof module!=='undefined')module.exports=api;else root.Combat=api;
 })(typeof window!=='undefined'?window:globalThis);

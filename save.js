@@ -13,6 +13,7 @@ class Store{
   this.levelIds=Object.keys(levels).map(Number).sort((a,b)=>a-b);
   this.characters=[...characters];
   this.defaultCharacter=defaultCharacter;
+  this.characterUnlockLevels=new Map(this.characters.filter(id=>id!==defaultCharacter).map((id,index)=>[id,this.levelIds[index]]));
   this.firstLevel=this.levelIds[0];
   this.raw=null;
   this.issue=null;
@@ -23,7 +24,11 @@ class Store{
  }
  initial(){
   return {version,clearedLevels:[],legacyAccess:[],unlockedLevels:[this.firstLevel],location:null,
-   unlockedCharacters:[...this.characters],selectedCharacter:this.defaultCharacter,account:growth.normalizeAccount(null,this.characters)};
+   unlockedCharacters:this.unlockedCharacters([]),selectedCharacter:this.defaultCharacter,account:growth.normalizeAccount(null,this.characters)};
+ }
+ characterUnlockLevel(id){return this.characterUnlockLevels.get(id);}
+ unlockedCharacters(cleared){
+  return this.characters.filter(id=>id===this.defaultCharacter||cleared.includes(this.characterUnlockLevel(id)));
  }
  unlocked(cleared,legacyAccess=[]){
   return this.levelIds.filter(level=>level===this.firstLevel||cleared.includes(level)||cleared.includes(level-1)||legacyAccess.includes(level));
@@ -53,8 +58,9 @@ class Store{
   const location=isRecord(saved)&&unlockedLevels.includes(saved.level)
    ?this.checkpoint(saved.level,saved.afterRegion,clearedLevels)
    :this.lastClear(clearedLevels);
-  return {version,clearedLevels,legacyAccess,unlockedLevels,location,unlockedCharacters:[...this.characters],
-   selectedCharacter:this.characters.includes(value.selectedCharacter)?value.selectedCharacter:this.defaultCharacter,
+  const unlockedCharacters=this.unlockedCharacters(clearedLevels);
+  return {version,clearedLevels,legacyAccess,unlockedLevels,location,unlockedCharacters,
+   selectedCharacter:unlockedCharacters.includes(value.selectedCharacter)?value.selectedCharacter:this.defaultCharacter,
    account:growth.normalizeAccount(value.account,this.characters)};
  }
  load(){
@@ -147,7 +153,8 @@ class Store{
   if(!this.data.unlockedLevels.includes(level))return 'invalid';
   const clearedLevels=this.levelIds.filter(id=>id===level||this.data.clearedLevels.includes(id));
   const afterRegion=this.levels[level].regions.at(-1)?.id??null;
-  return this.update({...this.data,clearedLevels,unlockedLevels:this.unlocked(clearedLevels,this.data.legacyAccess),location:{level,afterRegion}});
+  return this.update({...this.data,clearedLevels,unlockedLevels:this.unlocked(clearedLevels,this.data.legacyAccess),
+   unlockedCharacters:this.unlockedCharacters(clearedLevels),location:{level,afterRegion}});
  }
  commitAccount(account){
   const next={...this.data,account},issue=this.persist(next);

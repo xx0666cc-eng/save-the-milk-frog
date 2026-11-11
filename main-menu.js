@@ -12,6 +12,7 @@ function init(value){
   select:options.select,notice:notice,preview:(id,trigger)=>showcase.open(id,trigger),changed:item=>{vfx.select(item);$('menu').dataset.character=item?.skin.id||'original';}
  });
  showcase=CharacterShowcase.create({active:()=>selection.model.selected,unlocked:()=>options.save.data.unlockedCharacters,
+  unlockCondition:options.unlockCondition,
   account:()=>options.save.data.account,item:id=>selection.items.get(id),select:id=>selection.choose(id),
   ready:()=>selection.ready&&!$('menu').classList.contains('hidden'),error:()=>$('menuSaveStatus').textContent});
  const growth=document.querySelector('.growth-menu-entry');if(growth){$('menuWallet').append(growth.querySelector('.milk-wallet'));$('menuUtilitySlot').append(growth);}

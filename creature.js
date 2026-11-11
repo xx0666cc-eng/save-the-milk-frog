@@ -6,7 +6,7 @@ const MAGE_STAFF_CRYSTAL=[45,70];
 function loadTexture(data){const image=new Image(),texture=new T.Texture(image);texture.colorSpace=T.SRGBColorSpace;texture.minFilter=T.LinearFilter;texture.magFilter=T.LinearFilter;texture.generateMipmaps=false;image.onload=()=>texture.needsUpdate=true;image.src=data.uri;return texture;}
 const vertexShader=`varying vec2 localPoint;
 void main(){localPoint=vec2((uv.x-.5)*7.,uv.y*4.5);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-const fragmentShader=`uniform sampler2D mapA,mapB;uniform vec4 cropA,cropB,shapeA,shapeB;uniform float blend,sceneTone;
+const fragmentShader=`uniform sampler2D mapA,mapB;uniform vec4 cropA,cropB,shapeA,shapeB;uniform float blend,sceneTone,holyLight;
 varying vec2 localPoint;
 vec4 sampleFrame(sampler2D tex,vec4 crop,vec4 shape){
  vec2 p=vec2(localPoint.x*shape.w,localPoint.y);vec2 q=(p-vec2(shape.x,0.))/shape.yz;
@@ -14,7 +14,9 @@ vec4 sampleFrame(sampler2D tex,vec4 crop,vec4 shape){
  vec4 c=texture2D(tex,crop.xy+q*crop.zw);return vec4(c.rgb*c.a,c.a);
 }
 void main(){vec4 c=mix(sampleFrame(mapA,cropA,shapeA),sampleFrame(mapB,cropB,shapeB),blend);
- if(c.a<.08)discard;vec3 rgb=c.rgb/max(c.a,.001);rgb=mix(rgb,vec3(dot(rgb,vec3(.2126,.7152,.0722))),sceneTone);
+ if(c.a<.08)discard;vec3 rgb=c.rgb/max(c.a,.001);
+ rgb=mix(rgb,rgb*vec3(1.12,1.03,.82)+vec3(.085,.046,.01),holyLight);
+ rgb=mix(rgb,vec3(dot(rgb,vec3(.2126,.7152,.0722))),sceneTone);
  gl_FragColor=vec4(rgb,c.a);
  #include <colorspace_fragment>
 }`;
@@ -22,7 +24,7 @@ class ReferenceFighterView{
  constructor(scene,id=0){
   this.id=id;this.root=new T.Group();this.root.name='ReferenceImageFighter';scene.add(this.root);this.body=new T.Group();this.root.add(this.body);this.model=this.body;
   this.assets=CHARACTER_ASSETS;this.textures={};for(const name of Object.keys(this.assets))this.textures[name]=loadTexture(this.assets[name]);
-  this.uniforms={mapA:{value:this.textures.idle},mapB:{value:this.textures.idle},cropA:{value:new T.Vector4()},cropB:{value:new T.Vector4()},shapeA:{value:new T.Vector4()},shapeB:{value:new T.Vector4()},blend:{value:0},sceneTone:{value:0}};
+  this.uniforms={mapA:{value:this.textures.idle},mapB:{value:this.textures.idle},cropA:{value:new T.Vector4()},cropB:{value:new T.Vector4()},shapeA:{value:new T.Vector4()},shapeB:{value:new T.Vector4()},blend:{value:0},sceneTone:{value:0},holyLight:{value:0}};
   this.material=new T.ShaderMaterial({uniforms:this.uniforms,vertexShader,fragmentShader,transparent:true,side:T.DoubleSide,depthWrite:false,depthTest:false,toneMapped:false});
   this.sprite=new T.Mesh(new T.PlaneGeometry(7,4.5),this.material);this.sprite.name='ReferenceCutoutSprite';this.sprite.position.set(0,2.25,.08);this.body.rotation.x=-Math.atan2(9.4,19);this.body.add(this.sprite);
   this.shadow=GroundIndicators.create(scene,'player');
@@ -104,11 +106,18 @@ class ReferenceFighterView{
   if(dash){actionFrame=null;kind='dash'+this.row;a=b=this.assets.walk?this.descriptor('walk',this.row*8+2,this.row===0?flip:1):this.descriptor('actions',1,flip);lean=leanSign*.09;sx=1.03;sy=.97;}
   if(f.state==='stun'){actionFrame=7;kind='stun';lean=-leanSign*.045;}
   if(f.state==='attack'){
-   const weapon=f.weapon||this.weapon||'fist',m=Combat.moveFor({weapon},f.attack),t=f.t||0,active=t>=m.hit*.8&&t<m.hit+m.active+.11;actionFrame=active?4:3;kind=f.attack+(active?'active':'windup');
+   const weapon=f.weapon||this.weapon||'fist',m=f.weapon?Combat.activeMoveFor(f):Combat.moveFor({weapon},f.attack),t=f.t||0,active=t>=m.hit*.8&&t<m.hit+m.active+.11;actionFrame=active?4:3;kind=f.attack+(active?'active':'windup');
    if(f.attack==='finisher')actionFrame=active?5:3;
    if(f.attack==='heavy'){lean=active?-leanSign*.055:0;if(active&&this.assets.actions.frames.length>9)actionFrame=9;}
    if(f.attack==='wave')actionFrame=t>=m.hit?(this.assets.actions.frames.length>10?10:4):3;
    if(f.attack==='super'){actionFrame=this.assets.actions.frames.length>11?11:8;bob=Math.sin(t*40)*.015;}
+   if(m.cone){actionFrame=8;kind=m.kind;bob=Math.sin(t*40)*.015;}
+   if(m.kind==='angelForm'){actionFrame=t<m.hit?6:0;kind='angelForm';}
+   if(m.shotCount){
+    const release=t-m.hit,interval=m.shotInterval;
+    actionFrame=release>=0&&release<(m.shotCount-1)*interval+.06&&release%interval<.06?4:3;
+    kind='holyFeather'+actionFrame;
+   }
    if(weapon==='sword'&&f.attack==='cross'&&active)actionFrame=9;
    if(weapon==='magic'&&m.projectile){
     if(f.attack==='wave'){
@@ -156,10 +165,11 @@ class ReferenceFighterView{
   const scale=ArenaConfig.scale.player;
   this.root.position.set(f.x,f.y,f.z||0);this.root.scale.setScalar(scale);this.body.position.y=this.bob;this.body.scale.set(this.sx,this.sy,1);this.body.rotation.z=this.lean;
   this.sprite.renderOrder=ArenaConfig.actorDepthOrder(f);
+  this.uniforms.holyLight.value=f.angelForm?.endsAt>time?clamp((f.angelForm.endsAt-time)/.35,0,1):0;
   GroundIndicators.update(this.shadow,f,scale,f.hp<=0?clamp(1-f.t/.65,0,1):1);
   const castingPillar=f.weapon==='magic'&&f.state==='attack'&&f.attack==='super';
   this.root.visible=castingPillar||kind==='rally'||!(f.inv>0&&f.state!=='dash'&&Math.floor(time*24)%2);
-  this.animationState={skin:this.skinId||'original',weapon:this.weapon||'fist',row:this.row,phase:this.phase,frame:this.lastFrame,blend:this.uniforms.blend.value,flip:a.flip,speed:this.speed};
+  this.animationState={skin:this.skinId||'original',weapon:this.weapon||'fist',row:this.row,phase:this.phase,frame:this.lastFrame,blend:this.uniforms.blend.value,flip:a.flip,speed:this.speed,form:f.angelForm?'angel':null};
  }
 }
 window.ReferenceFighterView=ReferenceFighterView;

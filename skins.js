@@ -1,7 +1,7 @@
 /* Register complete reference-image outfits here: idle, actions and walk atlases. */
 (function(){
 'use strict';
-const original={id:'original',name:'原版奶蛙',description:'黄色身体、浅色肚皮，使用现有完整步行与战斗动作。',preview:'assets/character/standing-cutout.png',assets:CHARACTER_ASSETS,ultimateColor:'#ffe074'};
+const original={id:'original',name:'原版奶蛙',description:'J 三段连打，K 挑空，U 释放扇形欢笑声波。I 变身圣辉奶蛙，J 改为三连圣羽，U 升级为圣音震鸣。',preview:'assets/character/standing-cutout.png',assets:CHARACTER_ASSETS,ultimateColor:'#ffe074'};
 const outfits=[
  {id:'outfit-1',name:'星月奶蛙',weapon:'magic',ultimateColor:'#d5adff',atlas:'data'},
  {id:'outfit-4',name:'金纹奶士',weapon:'sword',ultimateColor:'#f4ce77',atlas:'data-weapons-v2'},

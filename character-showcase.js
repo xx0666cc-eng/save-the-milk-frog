@@ -43,12 +43,12 @@ class Panel{
  state(){
   const unlocked=this.options.unlocked().includes(this.previewCharacter),current=this.previewCharacter===this.activeCharacter;
   const button=this.$('showcaseConfirm');button.disabled=this.busy||!unlocked||current;
-  button.textContent=this.busy?'正在准备动作…':!unlocked?'尚未解锁':current?'当前登场':'登场';
+  button.textContent=this.busy?'正在准备动作…':!unlocked?'未解锁':current?'当前登场':'登场';
   this.$('showcaseClose').disabled=this.busy;
   this.dialog.setAttribute('aria-busy',String(this.busy));
   this.$('showcaseActive').textContent=current?'当前登场角色':'角色形象预览';
   const skin=FighterSkins.find(this.previewCharacter);
-  this.$('showcaseAvailability').textContent=unlocked?'已解锁 · 当前版本初始可用':skin.unlockCondition||'尚未解锁 · 解锁条件尚未配置';
+  this.$('showcaseAvailability').textContent=unlocked?'已解锁':'未解锁 · '+this.options.unlockCondition(skin.id);
  }
  render(){
   const skin=FighterSkins.find(this.previewCharacter),data=CharacterInfo.details(skin,this.options.account());

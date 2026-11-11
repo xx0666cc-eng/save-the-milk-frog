@@ -1,6 +1,6 @@
 /* Utility surfaces share the character dossier's warm palette.
    The in-run .growth-info card, HUD and result screens retain their themes. */
-:is(#help,#menuSettingsPanel,#growthDialog:not(.growth-info)){
+:is(#pauseScreen,#help,#menuSettingsPanel,#growthDialog:not(.growth-info)){
  --utility-ink:#60391f;
  --utility-muted:#7c6044;
  --utility-line:#d6bb8b80;
@@ -10,10 +10,10 @@
  --utility-shadow:inset 0 1px 0 #fff,0 22px 70px #2013247a;
  color:var(--utility-ink);
 }
-:is(#help,#menuSettingsPanel,#growthDialog:not(.growth-info)) ::selection{
+:is(#pauseScreen,#help,#menuSettingsPanel,#growthDialog:not(.growth-info)) ::selection{
  background:#f2d58f;color:#60391f;
 }
-:is(#help,#menuSettingsPanel,#growthDialog:not(.growth-info)) :is(button,select):focus-visible{
+:is(#pauseScreen,#help,#menuSettingsPanel,#growthDialog:not(.growth-info)) :is(button,select):focus-visible{
  outline:3px solid #ae762b;outline-offset:3px;
 }
 :is(#help,#growthDialog:not(.growth-info)) kbd{
@@ -21,26 +21,71 @@
  border-radius:6px;box-shadow:inset 0 1px 0 #fffcf4,0 1px 2px #6c461a14;
 }
 
-/* Operation guide: retain its reading columns and responsive flow. */
-#help{background:#1c142759;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-#help .help-panel{
- background:var(--utility-surface);color:var(--utility-ink);border-color:#c9a365;
- border-radius:28px;corner-shape:superellipse(1.5);box-shadow:var(--utility-shadow);
- scrollbar-color:#b99c68 #f5ead6;
+:is(#pauseScreen,#help){
+ padding:clamp(10px,2.6vw,26px);background:#1c142759;
+ backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
 }
-#help .help-title h2{
+#pauseScreen .dialog-panel,#help .help-panel{
+ background:var(--utility-surface);border-color:#c9a365;
+ border-radius:28px;corner-shape:superellipse(1.5);box-shadow:var(--utility-shadow);
+}
+#pauseScreen .dialog-panel,#help .help-body{scrollbar-width:thin;scrollbar-color:#b99c68 #f5ead6}
+#pauseScreen h2,#help .help-title h2{
  font-family:'Honglei Xingshu','Microsoft YaHei',sans-serif;
  color:var(--utility-ink);font-weight:700;
 }
+
+/* Pause actions share a plain state and the same gold mouse hover. */
+#pauseScreen .dialog-panel{
+ width:min(100%,410px);max-height:100%;padding:0;overflow:auto;
+}
+#pauseScreen .pause-heading{padding:26px 20px 17px}
+#pauseScreen h2{margin:0;font-size:clamp(30px,4vw,38px);line-height:1.2}
+#pauseScreen #pauseSaveStatus{margin:9px 0 0;color:var(--utility-muted)}
+#pauseScreen .pause-actions{display:grid;gap:9px;padding:0 26px 18px}
+#pauseScreen .pause-action{
+ display:grid;place-items:center;min-height:50px;margin:0;padding:5px 14px;
+ border:1px solid transparent;border-radius:14px;corner-shape:superellipse(1.6);
+ background:transparent;color:var(--utility-ink);font-size:16px;line-height:1.3;
+}
+#pauseScreen .pause-action:disabled{
+ opacity:1;color:#79694e;cursor:default;transform:none;
+}
+@media(hover:hover){
+ #pauseScreen .pause-action:hover:not(:disabled){
+  border-color:#bf8a18;background:var(--utility-button);
+  box-shadow:inset 0 2px 3px #fffbe5,0 3px 0 #a96b0d,0 5px 12px #6c461a24;
+  font:700 24px/1.3 'Honglei Xingshu','Microsoft YaHei',sans-serif;
+ }
+}
+#pauseScreen .pause-footer{padding:7px 26px;background:#fff5e2a8;border-top:1px solid var(--utility-line)}
+
+/* The guide's header stays reachable while its contents scroll. */
+#help .help-panel{
+ display:flex;flex-direction:column;max-height:100%;padding:0;overflow:hidden;
+}
+#help .help-title{
+ padding:16px clamp(16px,3vw,28px);border-bottom:1px solid var(--utility-line);
+}
+#help .help-title h2{font-size:clamp(22px,3vw,32px);line-height:1.25}
 #help .help-title button{
- color:var(--utility-ink);border-color:transparent;background:#ebd7ac4d;
+ min-height:40px;padding:6px 11px;color:var(--utility-ink);
+ border-color:transparent;background:#ebd7ac4d;
  border-radius:12px;corner-shape:superellipse(1.5);
 }
 #help .help-title button:hover{background:#e5c98f70}
-#help .help-grid h3{color:var(--utility-gold)}
+#help .help-body{min-height:0;overflow:auto;padding:18px clamp(16px,3vw,28px) 20px}
+#help .help-grid{gap:24px;padding:0}
+#help .help-grid>div{min-width:0}
+#help .help-grid>div+div{padding-left:24px;border-left:1px solid var(--utility-line)}
+#help .help-grid h3{margin:20px 0 9px;color:var(--utility-gold)}
+#help .help-grid h3:first-child{margin-top:0}
 #help .help-grid :is(p,small),#help .help-tip{color:var(--utility-muted)}
+#help .help-grid>div>p{margin:8px 0}
 #help .combo-recipe,#help .help-tip{border-color:var(--utility-line)}
 #help .combo-recipe>b{color:var(--utility-ink)}
+#help .combo-recipe:last-child{border-bottom:0}
+#help .help-tip{margin:16px 0 0;padding-top:14px}
 
 /* Existing non-modal menu popover; no new input or settings logic. */
 #menu #menuSettingsPanel{
@@ -125,5 +170,17 @@
 #growthDialog:not(.growth-info) .growth-item-detail>b{color:var(--utility-gold)}
 
 @keyframes utility-upgrade{from{background:#f1d695;box-shadow:0 5px 15px #a5752420}to{background:transparent;box-shadow:none}}
-@media(max-width:600px){#growthDialog:not(.growth-info),#help .help-panel{border-radius:22px}}
+@media(max-width:600px){
+ #growthDialog:not(.growth-info),#pauseScreen .dialog-panel,#help .help-panel{border-radius:22px}
+ #help .help-grid{grid-template-columns:1fr;gap:16px}
+ #help .help-grid>div+div{padding:16px 0 0;border-left:0;border-top:1px solid var(--utility-line)}
+}
+@media(max-height:480px){
+ #pauseScreen{padding:10px}
+ #pauseScreen .pause-heading{padding-top:16px;padding-bottom:12px}
+ #pauseScreen .pause-actions{gap:6px;padding-bottom:12px}
+ #pauseScreen .pause-action{min-height:44px}
+ #pauseScreen .pause-footer{padding-block:4px}
+ #help .help-title{padding-block:10px}
+}
 @media(prefers-reduced-motion:reduce){#growthDialog:not(.growth-info) .growth-upgraded{animation:none}}

@@ -52,11 +52,12 @@ const MOVES={
  wave:{duration:.52,hit:.20,active:0,reach:0,damage:12,cost:20,cooldown:3},
  super:{duration:1.05,hit:.20,active:.08,reach:5.6,damage:10,cost:100}
 };
+const PLAYER_SUPER={...MOVES.super,cooldown:12};
 // The original frog's player kit is separate from the arcade CPU's fists.
 const FROG_MOVES={
  wave:{...MOVES.wave,kind:'laughWave',duration:.78,hit:.23,damage:14,stun:.72,push:1.2,
   radius:6,halfAngle:Math.PI/4,travelTime:.28,cone:true,daze:true},
- super:{...MOVES.super,kind:'angelForm',duration:.75,hit:.30,active:0,reach:0,damage:0,formDuration:10}
+ super:{...PLAYER_SUPER,kind:'angelForm',duration:.75,hit:.30,active:0,reach:0,damage:0,formDuration:10}
 };
 const ANGEL_MOVES={
  jab:{...MOVES.jab,kind:'holyFeather',duration:.58,hit:.13,active:0,step:0,damage:8,stun:.30,push:.32,
@@ -74,7 +75,7 @@ const WEAPON_MOVES={
   cross:{...MOVES.cross,damage:6,duration:.29,hit:.11,active:0,step:0,projectile:true,kind:'goldStar',speed:23,life:.85},
   finisher:{...MOVES.finisher,damage:8,duration:.36,hit:.14,active:0,step:0,projectile:true,kind:'goldStar',speed:24,life:.85},
   wave:{...MOVES.wave,duration:.66,hit:.23,damage:16,stun:.85,push:2.6,projectile:true,kind:'firedStamp',speed:17,life:.9},
-  super:{...MOVES.super,duration:3,hit:.25,damage:12,slow:3,kind:'rally',pulses:5,sweepTime:.55}
+  super:{...PLAYER_SUPER,duration:3,hit:.25,damage:12,slow:3,kind:'rally',pulses:5,sweepTime:.55}
  },
  fan:{
   jab:{duration:.43,hit:.13,active:0,damage:7,stun:.30,push:.6,step:0,projectile:true,kind:'moonBlade',speed:14,life:1.15},
@@ -82,14 +83,14 @@ const WEAPON_MOVES={
   finisher:{duration:.60,hit:.22,active:0,damage:12,stun:.48,push:2.6,step:0,projectile:true,kind:'moonBlade',speed:16,life:1.15},
   heavy:{...MOVES.heavy,reach:2.5},
   wave:{duration:.65,hit:.18,active:0,damage:12,stun:.36,push:.25,cost:20,cooldown:3,projectile:true,kind:'moonFan',boomerang:true,range:6,speed:12,life:3},
-  super:{duration:1.35,hit:0,active:0,damage:8,cost:100,groundSpell:true,moonField:true}
+  super:{duration:1.35,hit:0,active:0,damage:8,cost:100,cooldown:PLAYER_SUPER.cooldown,groundSpell:true,moonField:true}
  },
  magic:{
   jab:{duration:.48,hit:.16,active:0,damage:8,stun:.33,push:.7,step:0,projectile:true,kind:'orb',speed:13,life:1.4},
   cross:{duration:.50,hit:.18,active:0,damage:11,stun:.38,push:.8,step:0,projectile:true,kind:'orb',speed:14,life:1.4},
   finisher:{duration:.62,hit:.24,active:0,damage:15,stun:.48,push:1.4,step:0,projectile:true,kind:'orb',speed:15,life:1.4},
   wave:{...MOVES.wave,damage:16,projectile:true,kind:'orb',speed:12,life:1.6},
-  super:{duration:1.3,hit:0,active:0,damage:40,cost:100,groundSpell:true}
+  super:{duration:1.3,hit:0,active:0,damage:40,cost:100,cooldown:PLAYER_SUPER.cooldown,groundSpell:true}
  },
  sword:{
   jab:{...MOVES.jab,damage:7,duration:.35,hit:.11,reach:2.75},
@@ -97,7 +98,7 @@ const WEAPON_MOVES={
   finisher:{...MOVES.finisher,damage:12,duration:.54,hit:.18,reach:3.25},
   heavy:{...MOVES.heavy,duration:.69,hit:.23,reach:3.1},
   wave:{...MOVES.wave,damage:14,duration:.62,hit:.18,step:14,kind:'blade',piercing:true},
-  super:{...MOVES.super,reach:4.8}
+  super:{...PLAYER_SUPER,reach:4.8}
  },
  bow:{
   jab:{duration:.48,hit:.16,active:0,damage:7,stun:.33,push:.7,step:0,projectile:true,speed:18,life:.7},
@@ -105,7 +106,7 @@ const WEAPON_MOVES={
   finisher:{duration:.62,hit:.24,active:0,damage:14,stun:.48,push:1.4,step:0,projectile:true,speed:20,life:.7},
   heavy:{duration:.70,hit:.28,active:0,damage:17,stun:.67,push:1.4,lift:5.7,step:0,projectile:true,speed:20,life:.7},
   wave:{duration:.60,hit:.22,active:0,damage:14,stun:.58,push:2.1,cost:20,cooldown:3,projectile:true,speed:22,life:.7},
-  super:{...MOVES.super,projectile:true,speed:24,life:.7}
+  super:{...PLAYER_SUPER,projectile:true,speed:24,life:.7}
  }
 };
 function moveFor(f,name=f.attack){
@@ -286,7 +287,7 @@ class Game{
   autoAttacks.cancel(f);
   const fraction=f.hp/f.maxHP;
   f.maxHP=growth.round(PLAYER_STATS[weapon].hp*(f.permanent?.hp??1));f.hp=f.hp>0?Math.max(1,growth.round(f.maxHP*fraction)):0;
-  f.weapon=weapon;f.cooldowns={wave:0,super:0};f.buffer=null;f.combo=f.comboDamage=f.comboTTL=0;f.walkVX=f.walkVZ=0;this.clearPlayerCasts();
+  f.weapon=weapon;f.cooldowns.wave=0;f.buffer=null;f.combo=f.comboDamage=f.comboTTL=0;f.walkVX=f.walkVZ=0;this.clearPlayerCasts();
   if(f.state==='attack'){f.state=f.y>0?'jump':'idle';f.attack=null;f.t=0;}f.spawned=false;f.hit=false;
   this.projectiles=this.projectiles.filter(p=>p.owner!==0);
   this.groundSpells=this.groundSpells.filter(p=>p.owner!==0);
@@ -622,7 +623,7 @@ class Game{
   for(const f of this.fighters){
    if(f.angelForm&&this.time+1e-9>=f.angelForm.endsAt)f.angelForm=null;
    const unlimited=this.unlimited(f);f.t+=dt;f.inv=Math.max(0,f.inv-dt);f.dashCD=unlimited?0:Math.max(0,f.dashCD-dt);f.stun=Math.max(0,f.stun-dt);f.comboTTL=Math.max(0,f.comboTTL-dt);
-   f.slow=Math.max(0,f.slow-dt);for(const key of ['wave','super'])f.cooldowns[key]=unlimited?0:Math.max(0,f.cooldowns[key]-dt);
+   f.slow=Math.max(0,f.slow-dt);for(const key of ['wave','super'])f.cooldowns[key]=unlimited||f.cooldowns[key]<=dt+1e-9?0:f.cooldowns[key]-dt;
    if(f.comboTTL===0){f.combo=0;f.comboDamage=0;}
    if(f.state!=='guard')f.guard=clamp(f.guard+dt*13,0,100);
    if(this.mode==='training')f.energy=unlimited?100:clamp(f.energy+dt*18,0,100);

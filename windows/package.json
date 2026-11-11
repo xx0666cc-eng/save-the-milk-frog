@@ -1,7 +1,7 @@
 {
   "name": "rift-strike",
   "productName": "拯救奶村",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "main": "desktop.js"
 }

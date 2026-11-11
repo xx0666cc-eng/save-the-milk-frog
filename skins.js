@@ -17,7 +17,7 @@ window.FIGHTER_SKINS=[original,...outfits.map(({atlas,portrait='reference.jpg',.
 })),president];
 FIGHTER_SKINS.find(s=>s.id==='outfit-1').description='J 发射紫色法球，不耗气；U 星月气流（20 笑声值）；I 大招星月天光（100 笑声值），首次按 I 升起光柱，再按 I 落柱，命中造成 40 伤害。';
 FIGHTER_SKINS.find(s=>s.id==='outfit-4').description='金纹奶士手持长剑：J 樱刃三连（横斩、斜斩、重劈），K 挑斩，U 樱影突斩，I 奥义·千樱断空（三斩与巨大交叉剑气）。';
-FIGHTER_SKINS.find(s=>s.id==='outfit-8').description='月华奶尊手持月华流光扇：J 月华三段连击，U 流光回旋（往返均命中，冷却 3 秒），I 广寒天倾（自身周围的满月与持续月光领域，无独立冷却）。';
+FIGHTER_SKINS.find(s=>s.id==='outfit-8').description='月华奶尊手持月华流光扇：J 月华三段连击，U 流光回旋（往返均命中，冷却 3 秒），I 广寒天倾（自身周围的满月与持续月光领域）。';
 FIGHTER_SKINS.find(s=>s.id==='outfit-9').description='手持弓箭。J 射箭不耗气，K 挑空箭，U 蓄力箭，I 四箭连射。';
 // Use exact regions of the supplied six-picture collage in the chooser.
 [['outfit-1',0],['outfit-4',3],['outfit-8',5]].forEach(([id,i])=>{

@@ -141,7 +141,8 @@ function weaponUI(weapon='fist'){
  const unlimited=game.fighters.length>0&&game.unlimited(game.fighters[0]),helpText=text=>unlimited?text.replace(/(?:20|100) 笑声值/g,'0 笑声值').replace(/冷却 3 秒/g,'冷却 0 秒'):text;
  const fist=weapon==='fist',d=CharacterInfo.weapons[weapon]||CharacterInfo.weapons.fist;
  battleKeyLabels(game.fighters[0]?.angelForm?CharacterInfo.angel:d);
- $('helpLightText').textContent=d.lightHelp;$('helpHeavyText').textContent=helpText(d.heavyHelp);$('helpUltimateText').textContent=helpText(d.ultimateHelp);$('comboAdvice').textContent=d.advice;$('weaponHelp').textContent=d.tip;$('menuNote').textContent=d.note;
+ const superCooldown=unlimited?0:Combat.moveFor({id:0,weapon},'super').cooldown;
+ $('helpLightText').textContent=d.lightHelp;$('helpHeavyText').textContent=helpText(d.heavyHelp);$('helpUltimateText').textContent=helpText(d.ultimateHelp)+' · 冷却 '+superCooldown+' 秒';$('comboAdvice').textContent=d.advice;$('weaponHelp').textContent=d.tip;$('menuNote').textContent=d.note;
  $('airComboAdvice').textContent=fist?'挑空后，趁目标仍在身前用扇形声波追击。':'把对手打离地面，再用气流追击。';
  $('burstComboTitle').textContent=fist?'圣辉连招':'满气爆发';
  $('burstComboKeys').querySelectorAll('kbd').forEach((key,index)=>{key.textContent=(fist?'IJU':'JJI')[index];});
@@ -284,10 +285,13 @@ function events(){for(const e of game.events){GrowthUI.effect(e);if(e.type==='lo
 function updatePillarHint(player){
  if(player.weapon!=='magic')return;
  const pillar=game.groundSpells.find(spell=>spell.owner===player.id&&spell.kind==='pillar'&&!spell.fired);
- if(pillar)$('energyHint').textContent=pillar.guiding?'光柱移动中 · 再按 I 落柱':'光柱即将爆发';
+ if(pillar)$('energyHint').textContent=(pillar.guiding?'光柱移动中 · 再按 I 落柱':'光柱即将爆发')+superCooldownHint(player);
  const button=document.querySelector('#touchControls [data-action="super"]');
  const label=pillar?.guiding?'落柱':'光柱';
  if(button.textContent!==label)button.textContent=label;
+}
+function superCooldownHint(player){
+ return player.cooldowns.super>0?' · I 冷却 '+Math.ceil(player.cooldowns.super)+' 秒':'';
 }
 function updateFrogHint(player,readiness){
  const form=player.angelForm,hint=$('energyHint');
@@ -297,7 +301,7 @@ function updateFrogHint(player,readiness){
  if($('lightKeyName').textContent!==labels.light)battleKeyLabels(labels);
  if(form){
   const time=Math.max(0,form.endsAt-game.time).toFixed(1);
-  hint.textContent='圣辉 '+time+' 秒 · U '+labels.wave+' '+readiness('wave',Combat.ANGEL_MOVES.wave.cost);
+  hint.textContent='圣辉 '+time+' 秒 · U '+labels.wave+' '+readiness('wave',Combat.ANGEL_MOVES.wave.cost)+superCooldownHint(player);
  }
 }
 function updateCampaignHud(){

@@ -2,7 +2,8 @@ param(
     [Parameter(Mandatory)][string]$Compiler,
     [Parameter(Mandatory)][string]$ElectronRuntime,
     [Parameter(Mandatory)][string]$BuildDirectory,
-    [Parameter(Mandatory)][string]$OutputDirectory
+    [Parameter(Mandatory)][string]$OutputDirectory,
+    [switch]$Compact
 )
 
 $ErrorActionPreference = 'Stop'
@@ -70,11 +71,20 @@ try {
 $setupPath = Join-Path $buildPath 'Setup.iss'
 $script = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'Setup.iss'))
 [IO.File]::WriteAllText($setupPath, $script, [Text.UTF8Encoding]::new($true))
+$outputName = 'RiftStrike-Windows-x64-Setup'
+$packedArgs = @()
+if ($Compact) {
+    $outputName = 'RiftStrike-Windows-x64-Compact-Setup'
+    $packed = Join-Path $buildPath 'packed-game'
+    & node (Join-Path $PSScriptRoot 'PackGame.cjs') $gameRoot $packed
+    if ($LASTEXITCODE -ne 0) { throw "Game packaging failed ($LASTEXITCODE)" }
+    $packedArgs = @("/DPackedGame=$packed")
+}
 $setupArgs = @(
     '/Qp', "/DGameRoot=$gameRoot", "/DGameIcon=$iconPath", "/DChineseMessages=$messages",
-    "/DDesktopRuntime=$runtimePath", "/O$outputPath", $setupPath
-)
+    "/DDesktopRuntime=$runtimePath", "/DOutputName=$outputName", "/O$outputPath"
+) + $packedArgs + @($setupPath)
 & $compilerPath @setupArgs
 if ($LASTEXITCODE -ne 0) { throw "Installer compilation failed ($LASTEXITCODE)" }
 
-Get-Item -LiteralPath (Join-Path $outputPath 'RiftStrike-Windows-x64-Setup.exe')
+Get-Item -LiteralPath (Join-Path $outputPath ($outputName + '.exe'))
